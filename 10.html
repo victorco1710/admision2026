@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador: IA Generativa en Bolivia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f7f4 0%, #ffffff 100%);
+            min-height: 100vh;
+            color: #1a2e35; /* Azul petróleo profundo */
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.5rem;
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+            border: 2px solid #e2e8f0;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: #4fd1c5;
+            background-color: #f0fff4;
+            transform: translateY(-2px);
+        }
+        .correct {
+            background-color: #c6f6d5 !important;
+            border-color: #48bb78 !important;
+            color: #22543d !important;
+        }
+        .incorrect {
+            background-color: #fed7d7 !important;
+            border-color: #f56565 !important;
+            color: #742a2a !important;
+        }
+        progress::-webkit-progress-value {
+            background-color: #4fd1c5;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header / Volver -->
+    <div class="max-w-4xl mx-auto mb-6 flex justify-between items-center">
+        <a href="land_pag.html" class="bg-white px-6 py-2 rounded-full shadow-sm border border-teal-100 font-semibold text-teal-600 hover:bg-teal-50 transition-colors">
+            ← Volver
+        </a>
+        <div id="timer" class="text-xl font-bold text-red-500 bg-white px-4 py-2 rounded-lg shadow-sm">
+            30:00
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto">
+        <!-- Pantalla de Inicio -->
+        <div id="start-screen" class="glass-card p-8 text-center shadow-xl">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4 text-teal-800">
+                Inteligencia Artificial Generativa y su Impacto en la Sociedad Boliviana
+            </h1>
+            <p class="text-lg mb-8 text-gray-600">Simulador de Comprensión Lectora - Nivel Educación Superior</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="bg-teal-50 p-4 rounded-xl">
+                    <span class="block font-bold text-2xl">30</span>
+                    <span class="text-sm text-teal-700 uppercase">Preguntas</span>
+                </div>
+                <div class="bg-teal-50 p-4 rounded-xl">
+                    <span class="block font-bold text-2xl">30min</span>
+                    <span class="text-sm text-teal-700 uppercase">Tiempo Límite</span>
+                </div>
+                <div class="bg-teal-50 p-4 rounded-xl">
+                    <span class="block font-bold text-2xl">Alto</span>
+                    <span class="text-sm text-teal-700 uppercase">Dificultad</span>
+                </div>
+            </div>
+            <button onclick="startQuiz()" class="bg-teal-500 hover:bg-teal-600 text-white text-xl font-bold py-4 px-12 rounded-2xl shadow-lg transition-all transform hover:scale-105">
+                Comenzar Simulacro
+            </button>
+        </div>
+
+        <!-- Pantalla de Preguntas -->
+        <div id="quiz-screen" class="hidden">
+            <!-- Barra de Progreso -->
+            <div class="mb-6">
+                <div class="flex justify-between text-sm mb-2 font-semibold text-teal-700">
+                    <span id="progress-text">Pregunta 1 de 30</span>
+                    <span id="score-live">Puntos: 0</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progress-bar" class="bg-teal-500 h-3 rounded-full transition-all duration-500" style="width: 3.33%"></div>
+                </div>
+            </div>
+
+            <div class="glass-card p-6 md:p-10 shadow-2xl">
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold mb-8 leading-tight">
+                    Cargando pregunta...
+                </h2>
+
+                <div id="options-container" class="space-y-4">
+                    <!-- Opciones se cargan aquí -->
+                </div>
+
+                <!-- Retroalimentación -->
+                <div id="feedback" class="mt-8 p-6 rounded-xl hidden transition-all">
+                    <p id="feedback-title" class="font-bold text-lg mb-2"></p>
+                    <p id="feedback-text" class="italic text-sm md:text-base"></p>
+                    <button id="next-btn" onclick="nextQuestion()" class="mt-6 w-full md:w-auto bg-teal-600 text-white font-bold py-3 px-8 rounded-xl hover:bg-teal-700 transition-colors">
+                        Siguiente Pregunta
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Resultados -->
+        <div id="result-screen" class="hidden glass-card p-10 text-center shadow-2xl">
+            <h2 class="text-4xl font-bold mb-2 text-teal-800">Resultado Final</h2>
+            <div id="performance-badge" class="inline-block px-6 py-2 rounded-full text-white font-bold text-lg mb-6"></div>
+            
+            <div class="flex justify-around items-center mb-8">
+                <div>
+                    <p class="text-5xl font-bold text-teal-600" id="final-score">0</p>
+                    <p class="text-gray-500 uppercase tracking-widest text-sm">Puntaje</p>
+                </div>
+                <div class="h-16 w-px bg-gray-200"></div>
+                <div>
+                    <p class="text-5xl font-bold text-teal-600" id="final-percent">0%</p>
+                    <p class="text-gray-500 uppercase tracking-widest text-sm">Logro</p>
+                </div>
+            </div>
+
+            <p id="result-message" class="text-xl mb-8 italic text-gray-700"></p>
+
+            <button onclick="location.reload()" class="bg-teal-500 text-white font-bold py-4 px-10 rounded-2xl hover:bg-teal-600 transition-all shadow-lg">
+                Reiniciar Simulador
+            </button>
+        </div>
+
+        <!-- Créditos -->
+        <footer class="mt-12 text-center text-gray-500 text-sm">
+            <p class="font-bold">@victor 2026-SIMULADOR ACADÉMICO DE COMPRENSIÓN LECTORA</p>
+            <p class="italic">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+        </footer>
+    </main>
+
+    <script>
+        const quizData = [
+            {
+                q: "¿Qué beneficio principal ofrece el uso de servicios en la nube para estudiantes y pequeñas empresas ante la limitada disponibilidad de recursos computacionales en Bolivia?",
+                options: [
+                    "Permite adquirir hardware especializado a bajo costo.",
+                    "Facilita el acceso a potencia computacional sin poseer hardware especializado.",
+                    "Garantiza conexión de banda ancha estable en zonas rurales.",
+                    "Sustituye la necesidad de capacitación en inteligencia artificial."
+                ],
+                correct: 1,
+                sustento: "Pese a la limitación de recursos computacionales en Bolivia, 'la proliferación de servicios en la nube permite a estudiantes y pequeñas empresas acceder a esta potencia sin necesidad de poseer hardware especializado'."
+            },
+            {
+                q: "En el contexto de la educación secundaria, ¿cuál es el tercer paso del proceso descrito para la generación y retroalimentación de ejercicios de química?",
+                options: [
+                    "Generar problemas de balance de ecuaciones ajustados.",
+                    "Evaluar la respuesta e indicar errores cometidos.",
+                    "Sugerir conceptos revisados basados en la evaluación.",
+                    "Indicar errores y sugerir conceptos revisados."
+                ],
+                correct: 3,
+                sustento: "El algoritmo evalúa la respuesta, indica errores y sugiere conceptos revisados. Ese enunciado corresponde al tercer paso del proceso."
+            },
+            {
+                q: "¿Cuál es la expresión matemática exacta del mecanismo de atención utilizado en los transformadores según el texto?",
+                options: [
+                    "Attention(Q, K, V) = sigmoid(QK^T / √dk)V",
+                    "Attention(Q, K, V) = softmax((QK^{})/) V",
+                    "Attention(Q, K, V) = softmax(QK / dk)V",
+                    "Attention(Q, K, V) = relu(QK^T / d)V"
+                ],
+                correct: 1,
+                sustento: "En la sección 'Fundamentos técnicos de la IAG' del artículo se muestra la ecuación exacta del mecanismo de atención como: Attention(Q, K, V) = softmax(QK^T / √dk)V"
+            },
+            {
+                q: "¿Cuál es la característica principal de los problemas éticos y regulatorios que plantea la IAG en Bolivia?",
+                options: [
+                    "La excesiva legislación que frena la innovación digital.",
+                    "La generación de deepfakes y la falta de legislación específica.",
+                    "El rechazo social a las nuevas tecnologías académicas.",
+                    "La transparencia total de los algoritmos utilizados por el Estado."
+                ],
+                correct: 1,
+                sustento: "En la sección 4 del artículo se describen los retos éticos y regulatorios enfatizando 'la generación de información falsa (deepfakes) y la reproducción de sesgos presentes en los datos de entrenamiento' y se señala que 'la falta de legislación específica sobre contenido generado por IA' agrava estos problemas."
+            },
+            {
+                q: "¿Cuál es la consecuencia social descrita de la brecha digital entre zonas urbanas y rurales en Bolivia?",
+                options: [
+                    "Aumento de la migración de jóvenes hacia las ciudades del eje central.",
+                    "Limitación en la participación de la economía digital emergente.",
+                    "Reducción de los costos de hardware en departamentos del Beni y Pando.",
+                    "Mejora automática de la infraestructura por demanda de IAG."
+                ],
+                correct: 1,
+                sustento: "En el apartado 'Retos éticos, regulatorios y de inclusión digital', se señala que la brecha digital 'puede intensificarse si el acceso a la IAG se concentra en centros urbanos' y que, al disponer solo el 35% de los hogares en el Beni y Pando de conexión de banda ancha estable, 'limita su participación en la economía digital emergente'."
+            },
+            {
+                q: "¿Cuál de los siguientes enunciados describe correctamente una de las medidas propuestas para mitigar los riesgos de la IAG en Bolivia?",
+                options: [
+                    "Prohibir el uso de IA en campañas políticas nacionales.",
+                    "Indicar claramente que la salida es generada por IA (Transparencia).",
+                    "Privatizar la infraestructura de internet en zonas rurales.",
+                    "Eliminar los filtros de responsabilidad en modelos generativos."
+                ],
+                correct: 1,
+                sustento: "En la sección 'Retos éticos, regulatorios y de inclusión digital', el artículo propone, como parte del marco regulatorio, la medida de 'Transparencia'; 'los sistemas que producen contenido deben indicar claramente que la salida es generada por IA'."
+            },
+            {
+                q: "¿Qué principio general se puede extraer de los problemas identificados en la adopción de la IAG en Bolivia?",
+                options: [
+                    "La tecnología es neutral y no requiere regulación específica.",
+                    "La falta de legislación y brecha de acceso intensifican la desigualdad digital.",
+                    "El desarrollo rural depende exclusivamente de la minería y agricultura.",
+                    "La IAG reemplazará totalmente la labor docente en el corto plazo."
+                ],
+                correct: 1,
+                sustento: "En la sección 'Retos éticos, regulatorios y de inclusión digital', se señala que la falta de legislación específica y la brecha de acceso a internet pueden intensificar la desinformación y la desigualdad digital. Se propone un marco regulatorio que incluya transparencia, responsabilidad y acceso equitativo para mitigar esos riesgos."
+            },
+            {
+                q: "¿Qué consecuencia se puede deducir de una mayor incorporación de herramientas generativas de IA en la industria creativa boliviana?",
+                options: [
+                    "Aumento de costos operativos y pérdida de mercados externos.",
+                    "Lanzamiento de productos más rápido y acceso a mercados internacionales.",
+                    "Estandarización de diseños que elimina la identidad cultural.",
+                    "Reducción inmediata de la brecha digital en artesanos rurales."
+                ],
+                correct: 1,
+                sustento: "La startup boliviana Minka Design, al utilizar un modelo generativo de IA, logró un aumento del 27% en la velocidad de lanzamiento de nuevos diseños y expandió sus mercados a Uruguay y Chile. Se infiere que otros actores experimentarían efectos parecidos."
+            },
+            {
+                q: "¿Qué factor se espera que tenga una mayor influencia en la expansión futura de la IAG en Bolivia?",
+                options: [
+                    "La creación de nuevas facultades de ingeniería de sistemas.",
+                    "La mejora de la infraestructura de conectividad a internet.",
+                    "La traducción de modelos a idiomas originarios.",
+                    "La disminución del precio de las tarjetas gráficas (GPU)."
+                ],
+                correct: 1,
+                sustento: "Sin conectividad adecuada, incluso con marcos regulatorios, la población rural no podrá aprovechar la IAG, lo que hace que la mejora de la infraestructura sea el factor determinante para su expansión futura."
+            },
+            {
+                q: "¿Cuál es la diferencia principal entre cómo la IAG beneficia al sector educativo y al sector creativo en Bolivia?",
+                options: [
+                    "La educación busca lucro y el creativo busca personalización.",
+                    "En educación suple carencias de laboratorios; en el creativo acelera el lanzamiento de productos.",
+                    "La educación usa modelos determinísticos y el creativo estocásticos.",
+                    "No existe diferencia, ambos sectores la usan únicamente para marketing."
+                ],
+                correct: 1,
+                sustento: "En educación, ayuda a suplir carencias de laboratorios y mejora tasas de aprobación. En contraste, en la industria creativa acelera la creación de diseños y expansión de mercado."
+            },
+            {
+                q: "¿Qué es probable que ocurra con la huella ambiental de la industria textil boliviana si la IAG se adopta generalizadamente?",
+                options: [
+                    "Aumentará debido al alto consumo eléctrico de los servidores locales.",
+                    "Disminuirá al reducir etapas físicas de dibujo y prototipado.",
+                    "Se mantendrá igual ya que la IA no afecta procesos físicos.",
+                    "Aumentará por la necesidad de nuevos laboratorios de hardware."
+                ],
+                correct: 1,
+                sustento: "Al reducir esas etapas físicas (dibujo a mano, prototipos físicos), se espera una menor demanda de materiales y residuos, lo que implica una reducción de la huella ambiental."
+            },
+            {
+                q: "¿Qué afirmación se puede inferir sobre la estrategia necesaria para maximizar el potencial de la IAG en Bolivia?",
+                options: [
+                    "Debe enfocarse únicamente en la regulación punitiva.",
+                    "Debe combinar mejoras de conectividad, regulación ética y adopción educativa.",
+                    "Debe priorizar la inversión en hardware sobre la capacitación docente.",
+                    "Debe limitar el acceso a la nube para proteger la soberanía de datos."
+                ],
+                correct: 1,
+                sustento: "La conclusión lógica es que una estrategia eficaz debe combinar mejoras de conectividad, regulación ética y adopción educativa para mitigar riesgos y aprovechar beneficios."
+            },
+            {
+                q: "¿Cuál es el propósito principal de proponer un marco regulatorio de transparencia, responsabilidad y acceso equitativo?",
+                options: [
+                    "Controlar el acceso de los jóvenes a redes sociales.",
+                    "Mitigar riesgos éticos y evitar que se intensifique la brecha digital.",
+                    "Cobrar impuestos específicos a las startups tecnológicas.",
+                    "Reemplazar las leyes de derechos de autor vigentes."
+                ],
+                correct: 1,
+                sustento: "Su objetivo es 'mitigar estos riesgos' (deepfakes, sesgos) y 'evitar que la brecha digital se intensifique' en zonas rurales."
+            },
+            {
+                q: "¿Qué principio general subyace a las soluciones propuestas para mitigar riesgos de la IAG en Bolivia?",
+                options: [
+                    "El principio de libre mercado sin intervención estatal.",
+                    "La necesidad de una gobernanza integral (ética + infraestructura).",
+                    "La prohibición total de modelos con sesgos identificados.",
+                    "La centralización de la IA en el Ministerio de Educación."
+                ],
+                correct: 1,
+                sustento: "El texto propone un marco regulatorio que incluye transparencia, responsabilidad y acceso equitativo... enfatizando la necesidad de filtros y la inversión en infraestructura."
+            },
+            {
+                q: "¿Cuál es la conclusión lógica más coherente sobre el impacto en el altiplano vs. Santa Cruz?",
+                options: [
+                    "El impacto es idéntico por ser el mismo territorio nacional.",
+                    "El efecto productivo es más notable en Santa Cruz por mejor infraestructura y adopción temprana.",
+                    "El altiplano lidera la industria creativa gracias a la estética aymara.",
+                    "Santa Cruz suple la falta de laboratorios escolares mediante la startup MinkaDesign."
+                ],
+                correct: 1,
+                sustento: "Aunque la IAG ofrece beneficios educativos en el altiplano, su efecto productivo se manifiesta con mayor magnitud en la industria creativa de Santa Cruz debido a mejor infraestructura."
+            },
+            {
+                q: "¿Qué se esperaría si el Estado invierte en banda ancha rural y programas de IA para docentes?",
+                options: [
+                    "Un aumento de la desinformación por mayor acceso a redes.",
+                    "Una reducción de la brecha digital y facilitación del uso de IAG educativo.",
+                    "La eliminación inmediata de la economía informal en Bolivia.",
+                    "Una saturación de los servidores en la nube de 'BolivIA'."
+                ],
+                correct: 1,
+                sustento: "Se esperaría una reducción de esa brecha, facilitando el uso de IAG en educación rural y la producción de recursos locales."
+            },
+            {
+                q: "¿Qué ocurre si los docentes adoptan la generación estocástica de tokens en asistentes de IA?",
+                options: [
+                    "Los resultados serán siempre idénticos y deterministas.",
+                    "Se producirán ejercicios más variados que requieren verificación docente.",
+                    "La IA dejará de funcionar por falta de parámetros claros.",
+                    "Se garantiza automáticamente la alineación con los estándares nacionales."
+                ],
+                correct: 1,
+                sustento: "Al optar por la generación estocástica, los asistentes producirán ejercicios con distintas formulaciones... incrementa la variedad, pero también la necesidad de verificación docente."
+            },
+            {
+                q: "Sobre el impacto económico de la IAG en Bolivia, ¿cuál es la conclusión lógica al combinar los casos de estudio?",
+                options: [
+                    "La IAG eleva los costos de desarrollo de software en un 30%.",
+                    "Genera mejoras de productividad y reducción de costos operativos.",
+                    "No tiene impacto en la economía informal por falta de hardware.",
+                    "Elimina la brecha digital automáticamente sin capacitación."
+                ],
+                correct: 1,
+                sustento: "Mejoras del 27% en velocidad de diseño y reducción del 30% en costos de software son presentadas como oportunidades para la economía informal."
+            },
+            {
+                q: "¿Qué ocurriría si el Estado NO fortalece la infraestructura rural mientras la IAG se expande?",
+                options: [
+                    "La brecha digital se profundizará impidiendo el aprovechamiento rural.",
+                    "La población rural creará su propia infraestructura independiente.",
+                    "La IAG se volverá obsoleta en las ciudades por falta de competencia rural.",
+                    "Se generará una legislación automática para proteger a Beni y Pando."
+                ],
+                correct: 0,
+                sustento: "Si no se realizan estas inversiones, la distribución desigual de la IAG se profundizará, impidiendo que poblaciones rurales aprovechen oportunidades."
+            },
+            {
+                q: "¿Qué conclusión general se extrae sobre el impacto de la IAG en la productividad boliviana?",
+                options: [
+                    "Solo beneficia a empresas con grandes capitales extranjeros.",
+                    "Genera mejoras medibles de productividad en los ámbitos donde se aplica.",
+                    "Su impacto es puramente teórico y no se refleja en datos reales.",
+                    "Solo ha funcionado en el área de programación en Cochabamba."
+                ],
+                correct: 1,
+                sustento: "Cita incrementos concretos: 15% en aprobación, 27% en velocidad de diseño y 30% en reducción de costos fintech. Demuestran mejoras medibles."
+            },
+            {
+                q: "¿Cuál es el principio general que subyace a todas las soluciones propuestas para los retos de la IAG?",
+                options: [
+                    "Promover una adopción inclusiva y responsable.",
+                    "Priorizar el crecimiento económico sobre la ética.",
+                    "Limitar la tecnología a sectores académicos especializados.",
+                    "Eliminar el uso de servicios en la nube extranjeros."
+                ],
+                correct: 0,
+                sustento: "Transparencia, responsabilidad y acceso equitativo constituyen el principio general de promover una adopción inclusiva y responsable."
+            },
+            {
+                q: "Respecto a los desafíos ambientales en Bolivia, la información presentada en el texto es:",
+                options: [
+                    "Extensa y detallada sobre el uso de IAG en minería sostenible.",
+                    "Limitada, pues no presenta referencias a usos ambientales específicos.",
+                    "Enfocada exclusivamente en la gestión de recursos hídricos con IA.",
+                    "Crítica hacia el consumo energético de la IAG en Bolivia."
+                ],
+                correct: 1,
+                sustento: "El artículo trata fundamentos técnicos, educación e industria, pero no presenta ninguna referencia a usos ambientales... la relevancia es limitada en este aspecto."
+            },
+            {
+                q: "¿Qué medida es más adecuada para aplicar transparencia y responsabilidad en evaluaciones universitarias?",
+                options: [
+                    "Prohibir el uso de IA en todos los exámenes presenciales.",
+                    "Indicar que la salida es generada por IA y capacitar docentes para revisión crítica.",
+                    "Automatizar totalmente las notas sin intervención humana.",
+                    "Utilizar solo modelos determinísticos para evitar la creatividad."
+                ],
+                correct: 1,
+                sustento: "La transparencia (indicar salida IA) y la responsabilidad (capacitación docente para revisión crítica) son pilares para mitigar riesgos éticos."
+            },
+            {
+                q: "¿Cuál es la principal medida ética recomendada para mitigar la desinformación y sesgos?",
+                options: [
+                    "Transparencia: los sistemas deben indicar que el contenido es generado por IA.",
+                    "Responsabilidad: el Estado debe confiscar servidores con datos sesgados.",
+                    "Acceso: permitir que cualquier usuario modifique el código base de la IA.",
+                    "Infraestructura: aumentar la velocidad de internet en Santa Cruz."
+                ],
+                correct: 0,
+                sustento: "La sección propone, como medida clave, la 'Transparencia': los sistemas deben indicar claramente que la salida es generada por IA."
+            },
+            {
+                q: "¿Qué tan válido es el argumento de que la falta de ley ha favorecido la polarización política?",
+                options: [
+                    "Es totalmente válido y está sustentado con estadísticas electorales.",
+                    "Es parcialmente válido, pues se menciona el riesgo pero faltan datos cuantitativos.",
+                    "Es inválido, pues el texto niega que la IA se use en política.",
+                    "Es una conclusión absoluta basada en el estudio de caso de Pando."
+                ],
+                correct: 1,
+                sustento: "Indica que campañas emplean textos sin revelar origen... sin embargo, no presenta datos cuantitativos, por lo que la validez del argumento es parcial."
+            },
+            {
+                q: "¿Qué limitación del enfoque técnico del autor podría pasar desapercibida?",
+                options: [
+                    "La dependencia de la nube no garantiza acceso universal por la baja conectividad.",
+                    "El autor ignora que los transformers no usan redes neuronales.",
+                    "El texto solo menciona GPT-4 y no alternativas locales.",
+                    "No se menciona el uso de lenguaje Python en Bolivia."
+                ],
+                correct: 0,
+                sustento: "Aunque los servicios en la nube permiten acceso sin hardware, la baja conectividad (35% en Beni/Pando) implica que la nube no garantiza acceso universal."
+            },
+            {
+                q: "¿Qué sesgo o limitación del enfoque del autor podría conducir a una valoración incompleta del impacto rural?",
+                options: [
+                    "El autor solo se enfoca en agricultores y no en ganaderos.",
+                    "La mayoría de datos y ejemplos provienen de contextos urbanos.",
+                    "El enfoque es demasiado rural y descuida las startups de Santa Cruz.",
+                    "Solo utiliza datos del Instituto Nacional de Estadística."
+                ],
+                correct: 1,
+                sustento: "La mayor parte de los ejemplos provienen de contextos urbanos (Cochabamba, Santa Cruz). No se incluye estudio de caso rural, lo que representa una limitación."
+            },
+            {
+                q: "¿Qué estrategia combinaría eficazmente la mitigación de brecha digital y capacitación rural?",
+                options: [
+                    "Vender smartphones subsidiados en centros urbanos.",
+                    "Mejorar conectividad e instalar centros comunitarios con acceso a la nube.",
+                    "Prohibir el uso de IAG en el campo para evitar sesgos.",
+                    "Traducir los manuales de IA a idiomas originarios sin mejorar internet."
+                ],
+                correct: 1,
+                sustento: "Combinar mejora de conectividad con centros comunitarios que brinden acceso a la nube permitirá reducir desigualdad y permitir entrenamiento con IAG."
+            },
+            {
+                q: "Sobre la capacidad contextual, ¿cómo se comparan los transformers con sistemas tradicionales de reglas?",
+                options: [
+                    "Los sistemas de reglas son más aptos para la estética aymara por ser rígidos.",
+                    "Los transformers ponderan relevancia permitiendo adaptar contenido a patrones locales.",
+                    "Ambos sistemas funcionan igual al procesar tokens determinísticos.",
+                    "Los sistemas tradicionales son más rápidos pero consumen más banda ancha."
+                ],
+                correct: 1,
+                sustento: "Esta capacidad contextual (mecanismo de atención) es lo que facilita la adaptación a patrones locales... los sistemas basados en reglas siguen predefiniciones estáticas."
+            },
+            {
+                q: "¿Qué tipo de evidencia adicional validaría mejor el rendimiento académico estudiantil por IAG?",
+                options: [
+                    "Encuestas de satisfacción a padres de familia en Cochabamba.",
+                    "Un estudio experimental controlado con muestras de diversas regiones y pruebas estandarizadas.",
+                    "La cantidad de descargas de la app ChatGPT en Bolivia.",
+                    "Contar el número de laboratorios nuevos en el altiplano."
+                ],
+                correct: 1,
+                sustento: "Un estudio experimental controlado con muestras de diversas regiones... permitiría aislar el efecto de la IA generativa y validar su impacto en distintas poblaciones."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 30 * 60; // 30 minutos en segundos
+        let timerInterval;
+        let canAnswer = true;
+
+        function startQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            loadQuestion();
+            startTimer();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timer').textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                if (timeLeft <= 300) { // Alerta últimos 5 min
+                    document.getElementById('timer').classList.replace('text-red-500', 'bg-red-500');
+                    document.getElementById('timer').classList.add('text-white');
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            canAnswer = true;
+            const qData = quizData[currentQuestion];
+            document.getElementById('question-text').textContent = qData.q;
+            document.getElementById('progress-text').textContent = `Pregunta ${currentQuestion + 1} de 30`;
+            document.getElementById('progress-bar').style.width = `${((currentQuestion + 1) / 30) * 100}%`;
+            document.getElementById('feedback').classList.add('hidden');
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            qData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full text-left p-5 rounded-xl bg-white text-lg font-medium shadow-sm hover:shadow-md outline-none";
+                btn.innerHTML = `<span class="inline-block w-8 h-8 mr-3 text-center leading-8 rounded-full bg-teal-100 text-teal-700 font-bold">${String.fromCharCode(65 + index)}</span> ${opt}`;
+                btn.onclick = () => checkAnswer(index);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            if (!canAnswer) return;
+            canAnswer = false;
+            
+            const qData = quizData[currentQuestion];
+            const buttons = document.querySelectorAll('.option-btn');
+            
+            if (selectedIndex === qData.correct) {
+                buttons[selectedIndex].classList.add('correct');
+                score++;
+                showFeedback(true, qData.sustento);
+            } else {
+                buttons[selectedIndex].classList.add('incorrect');
+                buttons[qData.correct].classList.add('correct');
+                showFeedback(false, qData.sustento);
+            }
+            
+            document.getElementById('score-live').textContent = `Puntos: ${score}`;
+        }
+
+        function showFeedback(isCorrect, sustento) {
+            const feedbackDiv = document.getElementById('feedback');
+            const title = document.getElementById('feedback-title');
+            const text = document.getElementById('feedback-text');
+            
+            feedbackDiv.classList.remove('hidden');
+            if (isCorrect) {
+                feedbackDiv.className = "mt-8 p-6 rounded-xl bg-green-50 border border-green-200 text-green-800";
+                title.textContent = "¡Correcto!";
+            } else {
+                feedbackDiv.className = "mt-8 p-6 rounded-xl bg-red-50 border border-red-200 text-red-800";
+                title.textContent = "Incorrecto";
+            }
+            
+            text.innerHTML = `<strong>Sustento Académico:</strong><br>${sustento}`;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            
+            const percentage = Math.round((score / 30) * 100);
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-percent').textContent = `${percentage}%`;
+            
+            let level = "";
+            let color = "";
+            let message = "";
+            
+            if (percentage >= 85) {
+                level = "DESEMPEÑO ALTO";
+                color = "bg-green-500";
+                message = "¡Excelente dominio! Tienes una comprensión crítica excepcional sobre el impacto de la IAG en Bolivia.";
+            } else if (percentage >= 60) {
+                level = "DESEMPEÑO MEDIO";
+                color = "bg-yellow-500";
+                message = "Buen trabajo. Posees los conocimientos base, pero se recomienda profundizar en los fundamentos técnicos y marcos regulatorios.";
+            } else {
+                level = "DESEMPEÑO BAJO";
+                color = "bg-red-500";
+                message = "Es necesario reforzar la lectura. Te recomendamos repasar los casos de estudio y los retos éticos descritos en el repositorio.";
+            }
+            
+            const badge = document.getElementById('performance-badge');
+            badge.textContent = level;
+            badge.className = `inline-block px-6 py-2 rounded-full text-white font-bold text-lg mb-6 ${color}`;
+            document.getElementById('result-message').textContent = message;
+        }
+    </script>
+</body>
+</html>

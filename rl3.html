@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador RLM - Repositorio Oficial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f4f8;
+            color: #1a202c;
+        }
+        .glass-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .option-btn {
+            transition: all 0.2s;
+            border: 2px solid #edf2f7;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: #3182ce;
+            background-color: #ebf8ff;
+        }
+        .correct {
+            background-color: #c6f6d5 !important;
+            border-color: #38a169 !important;
+            color: #22543d !important;
+        }
+        .incorrect {
+            background-color: #fed7d7 !important;
+            border-color: #e53e3e !important;
+            color: #742a2a !important;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto mb-6 flex justify-between items-center">
+        <h1 class="text-xl font-bold text-slate-700">Simulador Académico</h1>
+        <div id="timer" class="text-lg font-mono font-bold bg-white px-4 py-2 rounded-lg shadow-sm border">
+            01:00:00
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto">
+        <!-- Progress -->
+        <div class="mb-6">
+            <div class="flex justify-between text-sm mb-2">
+                <span class="font-bold">Pregunta <span id="current-idx">1</span> de 50</span>
+                <span id="percent text-blue-600">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Quiz Area -->
+        <div id="quiz-container" class="glass-card p-6 md:p-10">
+            <div id="question-area">
+                <p id="question-text" class="text-lg md:text-xl font-semibold mb-8"></p>
+                <div id="options-grid" class="grid grid-cols-1 gap-4"></div>
+            </div>
+
+            <!-- Feedback -->
+            <div id="feedback" class="hidden mt-8 p-6 rounded-xl border-l-4">
+                <p id="feedback-msg" class="font-bold text-lg mb-2"></p>
+                <p id="sustento-text" class="text-gray-700 text-sm italic"></p>
+                <button id="next-btn" class="mt-6 bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 transition">
+                    Siguiente
+                </button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="result-screen" class="hidden glass-card p-10 text-center">
+            <h2 class="text-3xl font-bold mb-6">Resultado Final</h2>
+            <div class="text-6xl font-black text-blue-600 mb-2" id="score-val">0</div>
+            <p class="text-gray-500 mb-8">Preguntas correctas de 50</p>
+            <button onclick="location.reload()" class="bg-slate-800 text-white px-10 py-4 rounded-xl font-bold">Reiniciar Intento</button>
+        </div>
+    </main>
+
+    <script>
+        // Preguntas extraídas exactamente del PDF rl.pdf (Bloque final)
+        const questions = [
+            {
+                q: "149. En un equipo de voleibol, el promedio de edad de 6 jugadores es 22 años. Si se retira un jugador que tiene 27 años, ¿cuál es el nuevo promedio de edad de los 5 jugadores restantes?",
+                options: ["20 años", "21 años", "22 años", "23 años"],
+                correct: 1,
+                sustento: "Suma total = 6 * 22 = 132. Restando al de 27: 132 - 27 = 105. Nuevo promedio = 105 / 5 = 21."
+            },
+            {
+                q: "150. Un tren que viaja a una velocidad constante de 80 km/h tarda 3 horas en completar un trayecto. Si desea realizar el mismo trayecto en 2 horas, ¿a qué velocidad debe viajar?",
+                options: ["100 km/h", "120 km/h", "140 km/h", "160 km/h"],
+                correct: 1,
+                sustento: "Distancia = 80 * 3 = 240 km. Nueva velocidad = 240 / 2 = 120 km/h."
+            },
+            {
+                q: "151. Se tiene una mezcla de 20 litros de agua y sal al 10%. ¿Cuántos litros de agua se deben añadir para que la concentración de sal sea del 5%?",
+                options: ["10 litros", "15 litros", "20 litros", "25 litros"],
+                correct: 2,
+                sustento: "Sal = 2 litros (10% de 20). Para que 2L sea el 5%, el total debe ser 40L. Se añaden 20L."
+            },
+            {
+                q: "152. Un capital se duplica en 8 años bajo un régimen de interés simple. ¿Cuál es la tasa de interés anual aplicada?",
+                options: ["10.5%", "12.5%", "15.0%", "17.5%"],
+                correct: 1,
+                sustento: "Para duplicarse, el interés ganado debe ser igual al capital (100%). 100% / 8 años = 12.5% anual."
+            },
+            {
+                q: "153. ¿Cuál es el valor de x en la sucesión: 2, 5, 10, 17, 26, x?",
+                options: ["35", "36", "37", "38"],
+                correct: 2,
+                sustento: "La serie aumenta en números impares: +3, +5, +7, +9... El siguiente es +11. 26 + 11 = 37."
+            },
+            {
+                q: "154. En un examen de 50 preguntas, cada acierto suma 2 puntos y cada error resta 0.5 puntos. Si un estudiante respondió todas las preguntas y obtuvo 70 puntos, ¿cuántas preguntas acertó?",
+                options: ["35", "38", "40", "42"],
+                correct: 1,
+                sustento: "Sistema: x + y = 50; 2x - 0.5y = 70. Resolviendo, x = 38."
+            },
+            {
+                q: "155. Si el radio de un círculo aumenta en un 20%, ¿en qué porcentaje aumenta su área?",
+                options: ["20%", "40%", "44%", "50%"],
+                correct: 2,
+                sustento: "Área = π * r². Si r aumenta 1.2, r² aumenta 1.44 (44%)."
+            },
+            {
+                q: "156. Se lanzan dos dados normales. ¿Cuál es la probabilidad de que la suma de los puntos sea 7?",
+                options: ["1/6", "1/12", "1/9", "5/36"],
+                correct: 0,
+                sustento: "Casos favorables: (1,6),(6,1),(2,5),(5,2),(3,4),(4,3) = 6. Total = 36. Prob = 6/36 = 1/6."
+            },
+            {
+                q: "157. Tres obreros construyen un muro en 12 horas. ¿Cuánto tiempo tardarán 4 obreros en construir el mismo muro?",
+                options: ["8 horas", "9 horas", "10 horas", "11 horas"],
+                correct: 1,
+                sustento: "Inversa: (3 obreros * 12 h) / 4 obreros = 9 horas."
+            },
+            {
+                q: "158. Un artículo cuesta 120 Bs. Si se le aplica un descuento del 20% y luego un recargo del 10% sobre el nuevo precio, ¿cuál es el precio final?",
+                options: ["105.6 Bs", "108 Bs", "110 Bs", "112 Bs"],
+                correct: 0,
+                sustento: "120 * 0.8 = 96. Luego 96 * 1.1 = 105.6."
+            },
+            {
+                q: "159. ¿Cuál es el menor número entero que al ser dividido entre 4, 6 y 9 deja siempre un residuo de 2?",
+                options: ["34", "36", "38", "40"],
+                correct: 2,
+                sustento: "MCM(4,6,9) = 36. Como el residuo es 2: 36 + 2 = 38."
+            },
+            {
+                q: "160. Una caja contiene 5 bolas rojas, 3 verdes y 2 azules. Si se extrae una bola al azar, ¿cuál es la probabilidad de que NO sea roja?",
+                options: ["1/2", "3/10", "1/5", "2/3"],
+                correct: 0,
+                sustento: "Total 10. No rojas (verdes+azules) = 5. Probabilidad 5/10 = 1/2."
+            },
+            {
+                q: "161. Si 5 máquinas fabrican 5 artículos en 5 minutos, ¿cuánto tiempo tardarán 100 máquinas en fabricar 100 artículos?",
+                options: ["1 minuto", "5 minutos", "10 minutos", "100 minutos"],
+                correct: 1,
+                sustento: "Cada máquina tarda 5 minutos en hacer un artículo. 100 máquinas trabajando a la vez tardarán los mismos 5 minutos."
+            },
+            {
+                q: "162. El doble de la edad de Ana más la edad de Beto es 40 años. Si Beto es 4 años mayor que Ana, ¿qué edad tiene Beto?",
+                options: ["12 años", "14 años", "16 años", "18 años"],
+                correct: 2,
+                sustento: "2A + B = 40; B = A + 4. Resolviendo: A = 12, B = 16."
+            },
+            {
+                q: "163. Un tanque se llena con un grifo en 4 horas y se vacía con un desagüe en 6 horas. ¿En cuánto tiempo se llenará el tanque si ambos están abiertos?",
+                options: ["8 horas", "10 horas", "12 horas", "14 horas"],
+                correct: 2,
+                sustento: "1/4 - 1/6 = 1/12. Se llena en 12 horas."
+            },
+            {
+                q: "164. En un triángulo rectángulo, la hipotenusa mide 13 cm y uno de los catetos mide 5 cm. ¿Cuál es el área del triángulo?",
+                options: ["30 cm²", "60 cm²", "65 cm²", "72 cm²"],
+                correct: 0,
+                sustento: "Cateto faltante = 12 (Pitagórico 5-12-13). Área = (5*12)/2 = 30."
+            },
+            {
+                q: "165. Si x + y = 10 y x² + y² = 58, ¿cuál es el valor de xy?",
+                options: ["18", "20", "21", "24"],
+                correct: 2,
+                sustento: "(x+y)² = x² + 2xy + y² -> 100 = 58 + 2xy -> 42 = 2xy -> xy = 21."
+            },
+            {
+                q: "166. Una persona camina 3 km al norte y luego 4 km al este. ¿A qué distancia se encuentra del punto de partida?",
+                options: ["5 km", "6 km", "7 km", "8 km"],
+                correct: 0,
+                sustento: "Hipotenusa: √(3² + 4²) = √25 = 5 km."
+            },
+            {
+                q: "167. ¿Cuántos números de dos cifras son divisibles por 5?",
+                options: ["17", "18", "19", "20"],
+                correct: 1,
+                sustento: "Del 10 al 95 hay 18 múltiplos (95-10)/5 + 1 = 18."
+            },
+            {
+                q: "168. La suma de tres números consecutivos es 72. ¿Cuál es el número mayor?",
+                options: ["23", "24", "25", "26"],
+                correct: 2,
+                sustento: "(x-1) + x + (x+1) = 72 -> 3x = 72 -> x = 24. El mayor es 25."
+            },
+            {
+                q: "169. Si el 30% de un número es 45, ¿cuál es el 20% de dicho número?",
+                options: ["25", "30", "35", "40"],
+                correct: 1,
+                sustento: "100% es 150. El 20% de 150 es 30."
+            },
+            {
+                q: "170. En una bolsa hay 12 caramelos de menta y 8 de limón. Si saco uno (menta) y luego otro, ¿cuál es la probabilidad de que el segundo sea de limón?",
+                options: ["8/19", "8/20", "7/19", "12/19"],
+                correct: 0,
+                sustento: "Quedan 19 en total, de los cuales 8 son de limón. Probabilidad = 8/19."
+            },
+            {
+                q: "171. ¿Cuál es el valor de √(2 + √(2 + √(2 + ...)))?",
+                options: ["1", "2", "3", "Infinito"],
+                correct: 1,
+                sustento: "Ecuación x = √(2+x) -> x²-x-2=0 -> (x-2)(x+1)=0. Resultado x=2."
+            },
+            {
+                q: "172. Si un reloj marca las 3:00, ¿cuál es el ángulo formado por las manecillas?",
+                options: ["45°", "60°", "90°", "120°"],
+                correct: 2,
+                sustento: "3 horas * 30° por hora = 90°."
+            },
+            {
+                q: "173. Un granjero tiene gallinas y conejos. Hay 35 cabezas y 94 patas. ¿Cuántos conejos tiene?",
+                options: ["10", "12", "15", "20"],
+                correct: 1,
+                sustento: "2G + 4C = 94; G + C = 35. Resolviendo, C = 12."
+            },
+            {
+                q: "174. Si 2^x = 32, ¿cuál es el valor de x?",
+                options: ["3", "4", "5", "6"],
+                correct: 2,
+                sustento: "2 elevado a la 5 es 32."
+            },
+            {
+                q: "175. En un salón de clases, por cada 3 niños hay 4 niñas. Si hay 28 estudiantes, ¿cuántas niñas hay?",
+                options: ["12", "14", "16", "18"],
+                correct: 2,
+                sustento: "Razón 3:4 (Total 7 partes). 28/7 = 4. Niñas = 4*4 = 16."
+            },
+            {
+                q: "176. Un auto consume 8 litros por cada 100 km. ¿Cuántos litros consumirá en 250 km?",
+                options: ["16", "18", "20", "22"],
+                correct: 2,
+                sustento: "8L * 2.5 = 20 Litros."
+            },
+            {
+                q: "177. ¿Qué número sigue en la serie: 1, 4, 9, 16, 25, ...?",
+                options: ["30", "34", "36", "40"],
+                correct: 2,
+                sustento: "Cuadrados perfectos: 1², 2², 3², 4², 5². Sigue 6² = 36."
+            },
+            {
+                q: "178. Si un producto sube un 10% y luego baja un 10%, el precio final:",
+                options: ["Es igual", "Sube 1%", "Baja 1%", "Baja 10%"],
+                correct: 2,
+                sustento: "100 * 1.1 = 110. Luego 110 * 0.9 = 99. Baja 1%."
+            },
+            {
+                q: "179. ¿Cuántos segundos hay en una hora y media?",
+                options: ["3600", "4800", "5400", "6000"],
+                correct: 2,
+                sustento: "3600 (1h) + 1800 (0.5h) = 5400s."
+            },
+            {
+                q: "180. El área de un cuadrado es 64 cm². ¿Cuál es su perímetro?",
+                options: ["16", "24", "32", "40"],
+                correct: 2,
+                sustento: "Lado = √64 = 8. Perímetro = 8 * 4 = 32."
+            },
+            {
+                q: "181. Si 3 gatitos cazan 3 ratones en 3 horas, ¿cuántos ratones cazan 9 gatitos en 9 horas?",
+                options: ["9", "18", "27", "81"],
+                correct: 2,
+                sustento: "1 gato caza 1 ratón en 3 horas. En 9 horas ese gato caza 3 ratones. 9 gatos cazan 27."
+            },
+            {
+                q: "182. ¿Cuál es el resultado de 10 - 10 * 10 + 10?",
+                options: ["0", "100", "-80", "10"],
+                correct: 2,
+                sustento: "10 - 100 + 10 = -80."
+            },
+            {
+                q: "183. El promedio de 4 números es 15. Si se suma un quinto número y el promedio sube a 17, ¿cuál es ese número?",
+                options: ["20", "25", "30", "35"],
+                correct: 1,
+                sustento: "Suma original = 60. Suma nueva = 85. Diferencia = 25."
+            },
+            {
+                q: "184. Si ayer fue martes, ¿qué día será el pasado mañana de hace 3 días?",
+                options: ["Lunes", "Martes", "Miércoles", "Jueves"],
+                correct: 1,
+                sustento: "Ayer martes -> hoy miércoles. Hace 3 días: domingo. Pasado mañana de domingo: martes."
+            },
+            {
+                q: "185. ¿Cuántas caras tiene un cubo?",
+                options: ["4", "6", "8", "12"],
+                correct: 1,
+                sustento: "Un cubo es un hexaedro (6 caras)."
+            },
+            {
+                q: "186. Si el área de un círculo es 25π, ¿cuál es su diámetro?",
+                options: ["5", "10", "15", "20"],
+                correct: 1,
+                sustento: "r² = 25 -> r = 5. Diámetro = 10."
+            },
+            {
+                q: "187. Un padre tiene 40 años y su hijo 10. ¿En cuántos años el padre tendrá el triple que el hijo?",
+                options: ["3", "5", "8", "10"],
+                correct: 1,
+                sustento: "40+x = 3(10+x) -> 40+x = 30+3x -> 10=2x -> x=5."
+            },
+            {
+                q: "188. Si a un número se le resta su mitad y luego 10, queda 20. ¿Cuál es el número?",
+                options: ["40", "50", "60", "70"],
+                correct: 2,
+                sustento: "n/2 - 10 = 20 -> n/2 = 30 -> n = 60."
+            },
+            {
+                q: "189. ¿Cuál es la probabilidad de sacar un AS de una baraja de 52 cartas?",
+                options: ["1/52", "1/13", "1/4", "4/13"],
+                correct: 1,
+                sustento: "4 ases / 52 cartas = 1/13."
+            },
+            {
+                q: "190. Si x/3 = y/4 y x + y = 14, ¿cuál es el valor de y?",
+                options: ["6", "8", "10", "12"],
+                correct: 1,
+                sustento: "4x = 3y. Sustituyendo en la suma: y = 8."
+            },
+            {
+                q: "191. ¿Qué letra sigue en la serie: A, C, E, G, ...?",
+                options: ["H", "I", "J", "K"],
+                correct: 1,
+                sustento: "Se salta una letra: A (B) C (D) E (F) G (H) I."
+            },
+            {
+                q: "192. Un bidón de 100 litros está lleno al 25%. Se añaden 25 litros. ¿Qué porcentaje está ocupado?",
+                options: ["25%", "40%", "50%", "75%"],
+                correct: 2,
+                sustento: "25L iniciales + 25L extra = 50L (que es el 50% de 100)."
+            },
+            {
+                q: "193. Si compro 3 cuadernos por 10 Bs, ¿cuántos puedo comprar con 50 Bs?",
+                options: ["10", "15", "20", "25"],
+                correct: 1,
+                sustento: "Regla de tres: 15 cuadernos."
+            },
+            {
+                q: "194. ¿Cuál es la suma de los ángulos internos de un cuadrilátero?",
+                options: ["180°", "270°", "360°", "540°"],
+                correct: 2,
+                sustento: "(4-2) * 180 = 360°."
+            },
+            {
+                q: "195. Si f(x) = 2x - 3, ¿cuánto es f(f(2))?",
+                options: ["1", "-1", "2", "3"],
+                correct: 1,
+                sustento: "f(2) = 1. Luego f(1) = 2(1)-3 = -1."
+            },
+            {
+                q: "196. En un mapa, 2 cm representan 50 km. ¿Cuántos km representan 5 cm?",
+                options: ["100 km", "125 km", "150 km", "250 km"],
+                correct: 1,
+                sustento: "1 cm = 25 km. 5 cm = 125 km."
+            },
+            {
+                q: "197. En una clase de 28 estudiantes se desea elegir a 2 representantes. ¿De cuántas maneras se puede hacer?",
+                options: ["378", "756", "56", "28"],
+                correct: 0,
+                sustento: "Combinación C(28,2) = (28*27)/2 = 378."
+            },
+            {
+                q: "198. Orlando resuelve 2x² − 8x + 6 = 0. Dice que solo x=1 es solución. ¿Qué error cometió?",
+                options: [
+                    "Procedimiento correcto",
+                    "Error en factorización",
+                    "Error en verificación; ambas son correctas",
+                    "No tiene solución real"
+                ],
+                correct: 2,
+                sustento: "Ambas raíces (1 y 3) satisfacen la ecuación original. Orlando erró al verificar."
+            }
+        ];
+
+        let currentIdx = 0;
+        let score = 0;
+        let timeLeft = 3600;
+        let answered = false;
+
+        function startTimer() {
+            const timerEl = document.getElementById('timer');
+            const interval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    showResults();
+                    return;
+                }
+                timeLeft--;
+                const m = Math.floor(timeLeft / 60);
+                const s = timeLeft % 60;
+                timerEl.textContent = `00:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            answered = false;
+            const data = questions[currentIdx];
+            document.getElementById('question-text').textContent = data.q;
+            document.getElementById('current-idx').textContent = currentIdx + 1;
+            
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+            
+            data.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn p-5 rounded-xl text-left font-medium text-slate-700";
+                btn.innerHTML = `<span class="font-bold mr-2">${String.fromCharCode(65+i)})</span> ${opt}`;
+                btn.onclick = () => checkAnswer(i);
+                grid.appendChild(btn);
+            });
+
+            document.getElementById('feedback').classList.add('hidden');
+            const progress = ((currentIdx) / 50) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function checkAnswer(idx) {
+            if(answered) return;
+            answered = true;
+            const data = questions[currentIdx];
+            const btns = document.querySelectorAll('.option-btn');
+            
+            if(idx === data.correct) {
+                btns[idx].classList.add('correct');
+                score++;
+                showFeedback(true);
+            } else {
+                btns[idx].classList.add('incorrect');
+                btns[data.correct].classList.add('correct');
+                showFeedback(false);
+            }
+        }
+
+        function showFeedback(isCorrect) {
+            const fb = document.getElementById('feedback');
+            const msg = document.getElementById('feedback-msg');
+            const sustento = document.getElementById('sustento-text');
+            
+            fb.classList.remove('hidden');
+            msg.textContent = isCorrect ? "¡Respuesta Correcta!" : "Respuesta Incorrecta";
+            msg.className = isCorrect ? "text-green-600 font-bold text-lg mb-1" : "text-red-600 font-bold text-lg mb-1";
+            fb.style.borderColor = isCorrect ? "#38a169" : "#e53e3e";
+            fb.style.backgroundColor = isCorrect ? "#f0fff4" : "#fff5f5";
+            
+            sustento.innerHTML = `<strong>Explicación:</strong> ${questions[currentIdx].sustento}`;
+        }
+
+        document.getElementById('next-btn').onclick = () => {
+            currentIdx++;
+            if(currentIdx < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        };
+
+        function showResults() {
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            document.getElementById('score-val').textContent = score;
+        }
+
+        window.onload = () => {
+            startTimer();
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>

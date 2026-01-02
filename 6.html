@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador: Salud y Sostenibilidad en Bolivia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f2f1 0%, #ffffff 100%);
+            min-height: 100vh;
+            color: #1a2a3a; /* Azul petróleo profundo */
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+        }
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(5px);
+            background-color: #f0fdf4;
+            border-color: #4ade80;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Barra Superior -->
+    <div class="max-w-4xl mx-auto flex justify-between items-center mb-6">
+        <a href="land_pag.html" class="bg-white px-4 py-2 rounded-lg shadow-sm text-sm font-semibold hover:bg-gray-50 transition-colors flex items-center gap-2 border border-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Volver
+        </a>
+        <div id="timer" class="text-xl font-mono font-bold text-emerald-700 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100">
+            30:00
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto">
+        <!-- Encabezado -->
+        <header class="text-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold mb-2 leading-tight">Salud y sostenibilidad: Impacto del cambio climático en las enfermedades transmitidas por vectores en Bolivia</h1>
+            <p class="text-gray-500 text-sm italic">Repositorio de Preguntas para la Prueba Académica de Educación Superior</p>
+        </header>
+
+        <!-- Barra de Progreso -->
+        <div class="mb-6">
+            <div class="flex justify-between text-xs font-semibold mb-1 uppercase tracking-wider text-gray-400">
+                <span>Progreso del Simulacro</span>
+                <span id="progress-text">Pregunta 1 de 30</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div id="progress-bar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 3.33%"></div>
+            </div>
+        </div>
+
+        <!-- Contenedor del Simulador -->
+        <div id="game-container" class="glass-card shadow-xl p-6 md:p-10">
+            <!-- Pantalla de Inicio -->
+            <div id="start-screen" class="text-center py-10">
+                <div class="mb-6 inline-block p-4 bg-emerald-100 rounded-full text-emerald-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold mb-4">¿Estás listo para comenzar?</h2>
+                <p class="text-gray-600 mb-8 max-w-md mx-auto">Evaluaremos tu comprensión lectora con un nivel de dificultad alto basado en el texto oficial. Tienes 30 minutos.</p>
+                <button onclick="startGame()" class="bg-emerald-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg hover:shadow-emerald-200">
+                    Iniciar Simulador
+                </button>
+            </div>
+
+            <!-- Pantalla de Preguntas -->
+            <div id="question-screen" class="hidden">
+                <div id="question-text" class="text-xl font-bold mb-8 leading-snug">
+                    <!-- Texto de la pregunta -->
+                </div>
+                <div id="options-container" class="space-y-3">
+                    <!-- Opciones -->
+                </div>
+
+                <!-- Retroalimentación -->
+                <div id="feedback" class="hidden mt-8 p-6 rounded-xl border-l-4">
+                    <h3 id="feedback-title" class="font-bold text-lg mb-2"></h3>
+                    <p id="feedback-text" class="text-sm leading-relaxed"></p>
+                    <button id="next-btn" onclick="nextQuestion()" class="mt-6 w-full md:w-auto bg-gray-800 text-white px-8 py-3 rounded-lg font-semibold hover:bg-black transition-all">
+                        Siguiente Pregunta
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pantalla Final -->
+            <div id="result-screen" class="hidden text-center py-6">
+                <h2 class="text-3xl font-bold mb-2">¡Simulacro Finalizado!</h2>
+                <div id="score-badge" class="inline-block px-6 py-2 rounded-full text-white font-bold mb-6 text-sm uppercase tracking-widest"></div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                        <div class="text-4xl font-black text-emerald-600 mb-1" id="final-score">0/30</div>
+                        <div class="text-gray-500 text-xs font-bold uppercase">Puntaje Total</div>
+                    </div>
+                    <div class="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                        <div class="text-4xl font-black text-blue-600 mb-1" id="final-percent">0%</div>
+                        <div class="text-gray-500 text-xs font-bold uppercase">Logro Académico</div>
+                    </div>
+                </div>
+
+                <div id="performance-msg" class="text-lg font-semibold mb-8 text-gray-700 italic"></div>
+
+                <button onclick="restartGame()" class="bg-emerald-600 text-white px-10 py-4 rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-lg">
+                    Reiniciar Simulador
+                </button>
+            </div>
+        </div>
+
+        <!-- Créditos -->
+        <footer class="mt-12 text-center text-gray-400 text-sm pb-10">
+            <p class="font-bold tracking-widest uppercase mb-1">@Victor-2026 SIMULADOR ACADÉMICO DE COMPRENSIÓN LECTORA</p>
+            <p>"Con esfuerzo lograrás el éxito, no desmayes"</p>
+        </footer>
+    </main>
+
+    <script>
+        const quizData = [
+            {
+                q: "La lectura del texto permite identificar que el artículo define el concepto de 'vector' como:",
+                options: [
+                    "Especies invasoras que desplazan a la fauna local en el Altiplano.",
+                    "Organismos que transmiten patógenos a los humanos.",
+                    "Cambios climáticos que modifican el ciclo de vida de los insectos.",
+                    "Sistemas de transporte de virus mediante corrientes de aire."
+                ],
+                correct: 1,
+                sustento: "La definición correcta se encuentra en la Introducción del artículo, donde se indica: 'vectores -organismos que transmiten patógenos a los humanos-'."
+            },
+            {
+                q: "¿Cuáles son los problemas climáticos identificados que favorecen el aumento de enfermedades transmitidas por vectores en Bolivia?",
+                options: [
+                    "Disminución de la temperatura en el Chaco e incendios forestales.",
+                    "Aumento de la temperatura media, variabilidad de precipitaciones y elevación del nivel de lagos andinos.",
+                    "Deforestación masiva en la Chiquitanía y reducción de glaciares andinos.",
+                    "Aumento de la radiación UV y salinización de suelos agrícolas."
+                ],
+                correct: 1,
+                sustento: "En la sección 'Cambio climático y manifestaciones locales' se enumeran: aumento de temperatura media, variabilidad y extremos de precipitación, y elevación del nivel de los lagos andinos como el Titicaca."
+            },
+            {
+                q: "La iniciativa 'Ciudades Verdes' en Santa Cruz generó una disminución del 30% en la densidad de larvas de Aedes. ¿Qué medida describe exactamente esa iniciativa?",
+                options: [
+                    "Fumigación masiva con químicos biodegradables en barrios periféricos.",
+                    "Incorporación de techos verdes y superficies permeables para reducir la escorrentía.",
+                    "Distribución de tanques de almacenamiento con sellos herméticos de alta tecnología.",
+                    "Creación de parques urbanos con especies de plantas repelentes de mosquitos."
+                ],
+                correct: 1,
+                sustento: "En el apartado 'Planeación urbana resiliente' se indica que la iniciativa incorpora techos verdes y superficies permeables, lo que reduce la acumulación de agua estancada."
+            },
+            {
+                q: "De acuerdo al artículo, ¿qué enfermedades transmitidas por vectores han aumentado en Bolivia?",
+                options: [
+                    "Dengue, Malaria y la enfermedad de Chagas.",
+                    "Zika, Chikungunya y Fiebre Amarilla.",
+                    "Leishmaniasis, Fiebre Maculosa y Peste Bubónica.",
+                    "Dengue, Tuberculosis y Malaria."
+                ],
+                correct: 0,
+                sustento: "El artículo reporta incrementos claros en la incidencia de dengue (62,000 casos), malaria (aumento del 28%) y enfermedad de Chagas."
+            },
+            {
+                q: "Las implicaciones económicas que se mencionan al implementar estrategias sostenibles son:",
+                options: [
+                    "Aumento en el costo de vida por el uso de energías renovables.",
+                    "Reducción de gastos en salud pública y ahorro en servicios ecosistémicos.",
+                    "Pérdida de competitividad agrícola debido a la protección de humedales.",
+                    "Dependencia económica de organismos internacionales como la GIZ."
+                ],
+                correct: 1,
+                sustento: "La mitigación implica beneficios como menores gastos sanitarios, seguridad energética y ahorro en servicios ecosistémicos por la captura de carbono."
+            },
+            {
+                q: "¿Qué conclusión se extrae sobre el papel de los distintos actores en la mitigación según el texto?",
+                options: [
+                    "El gobierno central es el único responsable de la ejecución de todas las medidas.",
+                    "La cooperación internacional es autosuficiente y no requiere participación comunitaria.",
+                    "Existe una interdependencia esencial entre gobierno, organismos internacionales y comunidad local.",
+                    "Las ONGs deben liderar la planeación urbana sin intervención estatal."
+                ],
+                correct: 2,
+                sustento: "La interdependencia de gobierno, organismos internacionales (como GIZ) y comunidad local se describe como esencial para reducir la vulnerabilidad."
+            },
+            {
+                q: "¿Qué es probable que ocurra en los valles de Bolivia sin medidas de gestión integral del agua?",
+                options: [
+                    "La malaria se convertirá en la principal causa de muerte urbana.",
+                    "El dengue experimentará un aumento notable y sobresalga frente a la malaria.",
+                    "Los triatominos colonizarán las zonas comerciales de las ciudades.",
+                    "Las inundaciones desaparecerán debido a la mayor temperatura media."
+                ],
+                correct: 1,
+                sustento: "La falta de gestión del agua crea criaderos perfectos para el dengue en valles. La malaria se concentra más en zonas amazónicas."
+            },
+            {
+                q: "Al ampliar la iniciativa 'Ciudades Verdes', ¿qué efecto es más probable producir?",
+                options: [
+                    "Un incremento en la humedad relativa que favorezca a los ácaros.",
+                    "Una reducción en la transmisión del dengue por la menor densidad larvaria.",
+                    "La erradicación total de la malaria en Bolivia.",
+                    "Un aumento en el costo del mantenimiento de edificios públicos."
+                ],
+                correct: 1,
+                sustento: "Al bajar la densidad de larvas de Aedes mediante superficies permeables, se espera lógicamente una menor transmisión del dengue."
+            },
+            {
+                q: "¿Qué consecuencia se deduce del aumento de temperatura y variabilidad de lluvias sobre la malaria?",
+                options: [
+                    "El ciclo del Anopheles se detendrá por exceso de calor.",
+                    "Áreas de bajo riesgo previo registrarán un aumento de casos.",
+                    "La malaria se limitará exclusivamente a la cuenca del Amazonas.",
+                    "Las vacunas contra la malaria perderán efectividad biológica."
+                ],
+                correct: 1,
+                sustento: "Se menciona que áreas previamente libres, como el Chapare, han mostrado una tendencia ascendente debido a temperaturas más altas."
+            },
+            {
+                q: "¿Qué efecto es probable al aplicar el modelado climático y ecológico a nivel nacional?",
+                options: [
+                    "Un aumento en los impuestos para financiar los satélites de la NASA.",
+                    "Una respuesta de salud más temprana y focalizada para asignar recursos.",
+                    "La eliminación de la necesidad de educación comunitaria.",
+                    "El cambio automático de las políticas de uso de suelo en todo el país."
+                ],
+                correct: 1,
+                sustento: "Permite anticipar áreas de riesgo con meses de antelación, facilitando la planificación de campañas de control vectorial."
+            },
+            {
+                q: "Respecto al papel de los actores, el texto destaca que la educación comunitaria es:",
+                options: [
+                    "Secundaria frente a la inversión en infraestructura pesada.",
+                    "Esencial para que la población adopte prácticas de prevención de criaderos.",
+                    "Innecesaria si se utilizan modelos predictivos por satélite.",
+                    "Responsabilidad exclusiva de las redes sociales."
+                ],
+                correct: 1,
+                sustento: "El texto afirma que la educación es esencial para la prevención y que la participación ciudadana crea redes de vigilancia."
+            },
+            {
+                q: "La incorporación de techos verdes y superficies permeables tiene como consecuencia directa:",
+                options: [
+                    "La eliminación de la huella de carbono en el sector transporte.",
+                    "La reducción directa del riesgo de transmisión de dengue al reducir larvas.",
+                    "El aumento de la temperatura interna de los edificios urbanos.",
+                    "La prohibición de almacenar agua en tanques descubiertos."
+                ],
+                correct: 1,
+                sustento: "Disminuye la densidad de larvas de Aedes en un 30%, lo que implica reducir el riesgo de transmisión de la enfermedad."
+            },
+            {
+                q: "¿Cuál es la conclusión lógica sobre las políticas de energía renovable y la vulnerabilidad sanitaria?",
+                options: [
+                    "Las energías renovables son inútiles para la salud pública.",
+                    "Mejoran la seguridad energética permitiendo la refrigeración continua de vacunas.",
+                    "Aumentan la temperatura local debido a los paneles solares.",
+                    "Solo son viables en regiones rurales sin hospitales."
+                ],
+                correct: 1,
+                sustento: "Garantizan la operación de sistemas de refrigeración para vacunas y diagnósticos, reduciendo la vulnerabilidad a largo plazo."
+            },
+            {
+                q: "El mensaje central implícito respecto a los actores involucrados para enfrentar el cambio climático es:",
+                options: [
+                    "Se requiere la acción conjunta y el enfoque interdisciplinario entre diversos sectores.",
+                    "La salud debe ser tratada de forma aislada del medio ambiente.",
+                    "Solo las autoridades sanitarias nacionales deben intervenir.",
+                    "Las comunidades locales no tienen capacidad técnica para ayudar."
+                ],
+                correct: 0,
+                sustento: "El artículo enfatiza que un enfoque interdisciplinario que combine salud, ambiente y desarrollo es fundamental."
+            },
+            {
+                q: "La relación entre cambio climático y enfermedades en Bolivia implica que:",
+                options: [
+                    "Las enfermedades vectoriales son independientes de la pobreza.",
+                    "Las dinámicas climáticas agravan la exposición de poblaciones vulnerables.",
+                    "El cambio climático solo afecta a las clases altas que viajan.",
+                    "La infraestructura sanitaria moderna es inmune al clima."
+                ],
+                correct: 1,
+                sustento: "La combinación de condiciones socioeconómicas vulnerables y urbanización rápida favorece la propagación de enfermedades."
+            },
+            {
+                q: "¿Cuál es la consecuencia social implícita más importante derivada del vínculo clima-salud?",
+                options: [
+                    "El abandono de las tradiciones culturales andinas.",
+                    "El aumento de la vulnerabilidad en comunidades pobres y la necesidad de estrategias integrales.",
+                    "La migración masiva de la ciudad al campo.",
+                    "La privatización total de los sistemas de agua potable."
+                ],
+                correct: 1,
+                sustento: "Se requiere un enfoque interdisciplinario para proteger a las futuras generaciones de los impactos en comunidades vulnerables."
+            },
+            {
+                q: "Diferencia en el impacto de la temperatura entre dengue (Aedes) y malaria (Anopheles):",
+                options: [
+                    "El dengue se detiene con el calor, la malaria no.",
+                    "El ciclo del dengue se acelera drásticamente; la malaria extiende su periodo de persistencia.",
+                    "Ambos virus mueren al superar los 25 grados centígrados.",
+                    "La malaria se transmite por contacto directo, el dengue por el agua."
+                ],
+                correct: 1,
+                sustento: "El desarrollo de Aedes se duplica de 20 a 28°C; para Anopheles, el periodo de transmisión se extiende más allá de la temporada tradicional."
+            },
+            {
+                q: "¿Qué se puede inferir sobre la efectividad de las estrategias propuestas?",
+                options: [
+                    "Son medidas aisladas sin conexión lógica entre sí.",
+                    "Representan una solución integral y sostenible basada en la interdisciplinariedad.",
+                    "Su éxito depende exclusivamente del financiamiento de la NASA.",
+                    "Han fracasado en todos los barrios piloto de Santa Cruz."
+                ],
+                correct: 1,
+                sustento: "La combinación de gestión de agua, planeación urbana, educación y modelado se presenta como una solución robusta y necesaria."
+            },
+            {
+                q: "Implicación económica de la adopción de energías renovables para el control de enfermedades:",
+                options: [
+                    "Aumento de la inflación por costos tecnológicos.",
+                    "Disminución de los gastos en salud pública a mediano plazo por mejor prevención.",
+                    "Eliminación de la necesidad de contratar médicos.",
+                    "Subvención total del gobierno a las industrias contaminantes."
+                ],
+                correct: 1,
+                sustento: "La mejora en la seguridad de la cadena de frío para vacunas y la menor incidencia reducen los costos sanitarios estatales."
+            },
+            {
+                q: "¿Qué es probable que ocurra con la captación de agua sellada en la Amazonía?",
+                options: [
+                    "Un aumento de la humedad dentro de las casas.",
+                    "Una disminución efectiva de la incidencia de dengue al reducir criaderos.",
+                    "La desaparición del bosque amazónico por falta de lluvia.",
+                    "El fomento de la reproducción de las garrapatas."
+                ],
+                correct: 1,
+                sustento: "La instalación de cubiertas selladas reduce criaderos de Aedes aegypti, siendo una de las medidas más efectivas."
+            },
+            {
+                q: "Implicación ética de priorizar la participación comunitaria:",
+                options: [
+                    "Se ahorra dinero al no pagar personal técnico.",
+                    "Se respeta y valora los conocimientos y prácticas locales, evitando la imposición externa.",
+                    "Se transfiere la responsabilidad legal de las muertes a los vecinos.",
+                    "Garantiza que el idioma oficial sea el único utilizado en salud."
+                ],
+                correct: 1,
+                sustento: "Evidencia que la participación comunitaria respeta principios éticos de no imposición y mejora la adherencia a las medidas."
+            },
+            {
+                q: "Implicación ética de implementar humedales construidos:",
+                options: [
+                    "Es una acción de justicia ambiental que favorece a comunidades vulnerables.",
+                    "Permite privatizar el tratamiento de aguas residuales.",
+                    "Obliga a los ciudadanos a vivir cerca de pantanos.",
+                    "Es una medida estética sin valor real para la salud."
+                ],
+                correct: 0,
+                sustento: "Los humedales tratan agua, capturan carbono y mejoran la biodiversidad, beneficiando a los grupos más expuestos."
+            },
+            {
+                q: "¿Cuál es el sesgo que el artículo permite identificar?",
+                options: [
+                    "Sesgo de género al no mencionar a las mujeres.",
+                    "Sesgo de enfoque al priorizar variables climáticas frente a determinantes sociales detallados.",
+                    "Sesgo político al criticar abiertamente al gobierno.",
+                    "Sesgo geográfico al ignorar por completo la región de los Valles."
+                ],
+                correct: 1,
+                sustento: "La discusión se centra en factores climáticos, mencionando vulnerabilidades sociales de forma general sin analizarlas como determinantes independientes."
+            },
+            {
+                q: "Síntesis de la relación temperatura/precipitaciones con dengue y malaria:",
+                options: [
+                    "El calor extremo mata a los vectores y la lluvia los ahoga.",
+                    "El aumento térmico acelera ciclos biológicos y las lluvias extremas multiplican los criaderos.",
+                    "No existe una relación estadística comprobada entre estas variables.",
+                    "El clima solo influye en el Chagas, pero no en el dengue ni malaria."
+                ],
+                correct: 1,
+                sustento: "El aumento de temperatura acelera el desarrollo de vectores y las lluvias intensas generan criaderos temporales."
+            },
+            {
+                q: "¿Es válida la afirmación de que la gestión del agua es más efectiva que la planificación urbana para el dengue?",
+                options: [
+                    "Sí, porque el agua es la fuente de vida de todos los seres.",
+                    "No, porque el artículo carece de evidencia comparativa cuantitativa para sostenerlo.",
+                    "Sí, el artículo presenta tablas que demuestran que el agua es 50% mejor.",
+                    "No, porque la planificación urbana incluye la fumigación obligatoria."
+                ],
+                correct: 1,
+                sustento: "El artículo da datos de planificación urbana (30%), pero no ofrece cifras comparativas sobre la efectividad de la gestión del agua."
+            },
+            {
+                q: "¿Qué evidencia adicional resultaría más pertinente para reforzar las estrategias?",
+                options: [
+                    "Un censo poblacional de las especies de aves en Bolivia.",
+                    "Un estudio longitudinal sobre la incidencia de enfermedades antes y después de aplicar las medidas.",
+                    "Una encuesta de satisfacción sobre el clima en las ciudades tropicales.",
+                    "Un análisis químico del agua del lago Titicaca."
+                ],
+                correct: 1,
+                sustento: "Un estudio longitudinal proporcionaría evidencia directa y temporalmente robusta sobre la viabilidad de las estrategias."
+            },
+            {
+                q: "Consideración ética esencial para que las intervenciones no profundicen desigualdades:",
+                options: [
+                    "Cobrar impuestos proporcionales a quienes más agua consumen.",
+                    "Involucrar activamente a las comunidades para que los beneficios lleguen a grupos vulnerables.",
+                    "Automatizar todos los sistemas de vigilancia mediante robots.",
+                    "Priorizar la inversión en clínicas privadas de alta complejidad."
+                ],
+                correct: 1,
+                sustento: "Involucrar a líderes comunitarios garantiza una respuesta equitativa y evita que las medidas refuercen desigualdades."
+            },
+            {
+                q: "¿Por qué es relevante la elevación del lago Titicaca para la gestión del agua?",
+                options: [
+                    "Porque el agua del lago servirá para apagar incendios.",
+                    "Porque genera nuevos hábitats de mosquitos que deben ser integrados en los planes de saneamiento.",
+                    "Porque la pesca desaparecerá debido al exceso de mosquitos.",
+                    "Porque el turismo disminuirá si el nivel del agua sigue subiendo."
+                ],
+                correct: 1,
+                sustento: "Los nuevos hábitats aumentan el riesgo; los planes de gestión del agua deben incorporar control vectorial en estas riberas."
+            },
+            {
+                q: "¿Quién tiene la posición más estratégica para liderar políticas sostenibles a largo plazo?",
+                options: [
+                    "Las agencias espaciales como la NASA.",
+                    "El Gobierno de Bolivia mediante coordinación interministerial.",
+                    "Las comunidades locales sin apoyo externo.",
+                    "Las empresas privadas de energía solar."
+                ],
+                correct: 1,
+                sustento: "Solo el gobierno puede articular políticas a gran escala y asignar recursos, coordinando con socios internacionales."
+            },
+            {
+                q: "¿Qué consecuencia trae la elevación de niveles de lagos andinos como el Titicaca?",
+                options: [
+                    "Inundaciones de agua salada en los Andes.",
+                    "Modificación de márgenes costeros y creación de nuevos hábitats para mosquitos.",
+                    "La purificación natural de las aguas residuales locales.",
+                    "El enfriamiento de la temperatura media en la zona ribereña."
+                ],
+                correct: 1,
+                sustento: "Aunque Bolivia no tiene mar, la elevación de lagos modifica márgenes y crea nuevos criaderos de mosquitos."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 30 * 60; // 30 minutos
+        let timerInterval;
+
+        const screens = {
+            start: document.getElementById('start-screen'),
+            question: document.getElementById('question-screen'),
+            result: document.getElementById('result-screen')
+        };
+
+        function showScreen(screenId) {
+            Object.values(screens).forEach(s => s.classList.add('hidden'));
+            screens[screenId].classList.remove('hidden');
+        }
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                endGame();
+            }
+            timeLeft--;
+        }
+
+        function startGame() {
+            currentQuestion = 0;
+            score = 0;
+            timeLeft = 30 * 60;
+            showScreen('question');
+            loadQuestion();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function loadQuestion() {
+            const data = quizData[currentQuestion];
+            document.getElementById('question-text').textContent = data.q;
+            document.getElementById('feedback').classList.add('hidden');
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            data.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full text-left p-4 rounded-xl border-2 border-gray-100 bg-white font-medium hover:border-emerald-300 transition-all";
+                btn.innerHTML = `<span class="inline-block w-8 h-8 rounded-lg bg-gray-50 text-center leading-8 mr-3 text-sm font-bold text-gray-400">${String.fromCharCode(65 + idx)}</span> ${opt}`;
+                btn.onclick = () => checkAnswer(idx);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Update Progress
+            const progress = ((currentQuestion + 1) / quizData.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('progress-text').textContent = `Pregunta ${currentQuestion + 1} de ${quizData.length}`;
+        }
+
+        function checkAnswer(selectedIdx) {
+            const data = quizData[currentQuestion];
+            const buttons = document.querySelectorAll('.option-btn');
+            const feedback = document.getElementById('feedback');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackText = document.getElementById('feedback-text');
+
+            // Disable all buttons
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedIdx === data.correct) {
+                buttons[selectedIdx].classList.add('correct');
+                score++;
+                feedbackTitle.textContent = "¡Respuesta Correcta!";
+                feedbackTitle.className = "font-bold text-lg mb-2 text-emerald-700";
+                feedback.className = "mt-8 p-6 rounded-xl border-l-4 bg-emerald-50 border-emerald-500";
+            } else {
+                buttons[selectedIdx].classList.add('incorrect');
+                buttons[data.correct].classList.add('correct');
+                feedbackTitle.textContent = "Respuesta Incorrecta";
+                feedbackTitle.className = "font-bold text-lg mb-2 text-red-700";
+                feedback.className = "mt-8 p-6 rounded-xl border-l-4 bg-red-50 border-red-500";
+            }
+
+            feedbackText.innerHTML = `<strong>Sustento:</strong> ${data.sustento}`;
+            feedback.classList.remove('hidden');
+            
+            // Scroll to feedback
+            feedback.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            showScreen('result');
+            
+            const percent = Math.round((score / quizData.length) * 100);
+            document.getElementById('final-score').textContent = `${score}/${quizData.length}`;
+            document.getElementById('final-percent').textContent = `${percent}%`;
+            
+            const badge = document.getElementById('score-badge');
+            const msg = document.getElementById('performance-msg');
+            
+            if (percent >= 80) {
+                badge.textContent = "Desempeño Alto";
+                badge.className = "inline-block px-6 py-2 rounded-full text-white font-bold mb-6 text-sm uppercase tracking-widest bg-emerald-500";
+                msg.textContent = "¡Excelente! Has demostrado un dominio superior de la lectura crítica.";
+            } else if (percent >= 51) {
+                badge.textContent = "Desempeño Medio";
+                badge.className = "inline-block px-6 py-2 rounded-full text-white font-bold mb-6 text-sm uppercase tracking-widest bg-yellow-500";
+                msg.textContent = "Buen trabajo, pero aún hay detalles del texto que requieren mayor atención.";
+            } else {
+                badge.textContent = "Desempeño Bajo";
+                badge.className = "inline-block px-6 py-2 rounded-full text-white font-bold mb-6 text-sm uppercase tracking-widest bg-red-500";
+                msg.textContent = "Es necesario volver a leer el documento con mayor profundidad técnica.";
+            }
+        }
+
+        function restartGame() {
+            showScreen('start');
+            document.getElementById('progress-bar').style.width = `3.33%`;
+            document.getElementById('progress-text').textContent = `Pregunta 1 de 30`;
+            document.getElementById('timer').textContent = "30:00";
+        }
+    </script>
+</body>
+</html>

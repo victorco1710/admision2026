@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONOCIMIENTOS GENERALES - QUÍMICA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f7f4 0%, #ffffff 100%);
+            color: #1a2a3a; /* Azul petróleo profundo */
+            min-height: 100vh;
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(5px);
+            background-color: #f0fdfa;
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+            color: #065f46 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Barra Superior -->
+    <div class="max-w-4xl mx-auto flex justify-between items-center mb-6">
+        <a href="land_pag.html" class="bg-white px-4 py-2 rounded-lg shadow-sm border border-teal-100 text-teal-600 font-semibold hover:bg-teal-50 transition">
+            ← Volver
+        </a>
+        <div id="timer" class="text-xl font-bold text-teal-700 bg-white px-4 py-2 rounded-full shadow-inner border border-teal-100">
+            30:00
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-teal-50">
+        <!-- Encabezado / Progreso -->
+        <div class="bg-teal-600 p-6 text-white">
+            <h1 class="text-2xl font-bold text-center mb-4 uppercase tracking-wider">CONOCIMIENTOS GENERALES - QUÍMICA</h1>
+            <div class="w-full bg-teal-800 rounded-full h-3 mb-1">
+                <div id="progress-bar" class="bg-teal-300 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p class="text-sm text-teal-100 text-right font-medium">Pregunta <span id="current-index">1</span> de 20</p>
+        </div>
+
+        <!-- Contenedor del Juego -->
+        <div id="quiz-container" class="p-8">
+            <div id="question-box">
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold mb-8 leading-tight">
+                    Cargando pregunta...
+                </h2>
+                
+                <div id="options-container" class="space-y-4">
+                    <!-- Opciones se insertan aquí -->
+                </div>
+            </div>
+
+            <!-- Retroalimentación -->
+            <div id="feedback-container" class="mt-8 p-6 rounded-2xl hidden border-l-8 transition-all">
+                <p id="feedback-title" class="font-bold text-lg mb-2"></p>
+                <p id="feedback-text" class="text-sm leading-relaxed italic"></p>
+                <button id="next-btn" class="mt-4 bg-teal-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-700 shadow-lg active:scale-95 transition">
+                    Siguiente Pregunta
+                </button>
+            </div>
+        </div>
+
+        <!-- Resultados Finales -->
+        <div id="results-screen" class="p-12 text-center hidden">
+            <div class="mb-6">
+                <div class="inline-block p-6 rounded-full bg-teal-50 text-teal-600 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-bold mb-2">Simulacro Finalizado</h2>
+                <p class="text-gray-500">Aquí están tus resultados:</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-teal-50 p-6 rounded-2xl border border-teal-100">
+                    <span class="block text-4xl font-black text-teal-600" id="final-score">0/20</span>
+                    <span class="text-sm text-teal-800 font-medium">Puntos Totales</span>
+                </div>
+                <div class="bg-teal-50 p-6 rounded-2xl border border-teal-100">
+                    <span class="block text-4xl font-black text-teal-600" id="final-percent">0%</span>
+                    <span class="text-sm text-teal-800 font-medium">Logro</span>
+                </div>
+            </div>
+
+            <div id="performance-badge" class="mb-8 p-4 rounded-xl font-bold text-xl uppercase tracking-widest border-2">
+                --
+            </div>
+
+            <button onclick="location.reload()" class="bg-teal-600 text-white px-10 py-4 rounded-2xl font-bold hover:bg-teal-700 shadow-xl transition transform hover:-translate-y-1">
+                Reiniciar simulador
+            </button>
+        </div>
+    </main>
+
+    <footer class="max-w-4xl mx-auto mt-12 text-center text-gray-500 text-sm">
+        <p class="mb-2">@victor 2026-SIMULADOR ACADÉMICO DE CONOCIMIENTOS GENERALES- QUIMICA</p>
+        <p class="font-semibold italic">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+    </footer>
+
+    <script>
+        const questions = [
+            {
+                q: "¿En qué región del átomo se encuentra concentrada la mayor parte de su masa, considerando la distribución de protones, neutrones y electrones?",
+                options: ["En la nube electrónica", "En los orbitales externos", "En el núcleo", "En los niveles de energía"],
+                correct: 2,
+                sustento: "La mayor parte de la masa del átomo se encuentra concentrada en el núcleo, ya que allí se localizan los protones y neutrones, partículas subatómicas con una masa significativamente mayor que la de los electrones."
+            },
+            {
+                q: "¿A qué corresponde el número atómico de un elemento químico?",
+                options: ["A la suma de protones y neutrones", "Al número de protones en el núcleo", "Al número de electrones en la última capa", "A la masa atómica promedio"],
+                correct: 1,
+                sustento: "El número atómico corresponde al número de protones que se encuentran en el núcleo. Este valor define la identidad del elemento y lo diferencia de los demás."
+            },
+            {
+                q: "¿En qué condición dos átomos del mismo elemento se denominan isótopos?",
+                options: ["Diferente número de protones", "Diferente número de electrones", "Mismo número de neutrones pero diferente de protones", "Mismo número de protones pero diferente número de neutrones"],
+                correct: 3,
+                sustento: "Los isótopos son átomos del mismo elemento (mismo número atómico/protones) que se diferencian en el número de neutrones, lo que provoca variaciones en su masa atómica."
+            },
+            {
+                q: "¿En función de qué magnitud se organiza principalmente la tabla periódica?",
+                options: ["Masa atómica creciente", "Número atómico creciente", "Electronegatividad", "Número de neutrones"],
+                correct: 1,
+                sustento: "La tabla periódica se organiza en función del número atómico creciente. Esto determina la configuración electrónica y, en consecuencia, el comportamiento químico."
+            },
+            {
+                q: "¿Cómo se denominan aquellos elementos que presentan propiedades intermedias entre los metales y los no metales?",
+                options: ["Gases nobles", "Halógenos", "Metaloides", "Metales de transición"],
+                correct: 2,
+                sustento: "Los metaloides presentan propiedades físicas y químicas intermedias. Pueden actuar como conductores o semiconductores."
+            },
+            {
+                q: "¿Cuál es la causa principal de la formación de un enlace químico?",
+                options: ["Aumento de la energía cinética", "Búsqueda de una configuración más estable y disminución de la energía total", "Repulsión exclusiva entre núcleos", "Pérdida de todos los electrones del átomo"],
+                correct: 1,
+                sustento: "La formación de un enlace ocurre cuando el balance de fuerzas de atracción y repulsión conduce a una disminución de la energía total del sistema, alcanzando mayor estabilidad."
+            },
+            {
+                q: "¿Cuál es la característica principal del enlace iónico que permite distinguirlo de otros tipos de enlace?",
+                options: ["Compartición de pares de electrones", "Atracción entre átomos neutros", "Transferencia de electrones (uno cede y otro acepta)", "Unión exclusiva entre dos metales"],
+                correct: 2,
+                sustento: "El enlace iónico se produce cuando un átomo cede electrones y otro los acepta, formando iones de cargas opuestas atraídos electrostáticamente."
+            },
+            {
+                q: "¿Qué información proporciona la fórmula química de un compuesto respecto a los átomos que lo constituyen?",
+                options: ["Solo el nombre común", "El tipo de elementos y la proporción de sus átomos", "La velocidad de reacción del compuesto", "El color y estado físico de la sustancia"],
+                correct: 1,
+                sustento: "La fórmula indica el tipo de elementos presentes y la proporción en la que sus átomos se combinan. Es esencial para establecer relaciones cuantitativas."
+            },
+            {
+                q: "¿Cuál es la característica principal que define a una sustancia pura?",
+                options: ["Se puede separar por filtración simple", "Composición química definida y constante", "Mezcla de varias fases visibles", "Cambia su composición según el volumen"],
+                correct: 1,
+                sustento: "Una sustancia pura posee composición definida y constante (elemento o compuesto). No puede separarse mediante métodos físicos."
+            },
+            {
+                q: "¿Cuál es la característica que permite identificar a una mezcla homogénea?",
+                options: ["Presencia de varias fases visibles", "Composición uniforme y una sola fase visible", "Imposibilidad de separar sus componentes", "Sedimentación rápida de componentes"],
+                correct: 1,
+                sustento: "Las mezclas homogéneas presentan composición uniforme y una sola fase visible, impidiendo distinguir componentes a simple vista."
+            },
+            {
+                q: "¿Cuál es la característica que define a un cambio físico?",
+                options: ["Altera la composición química", "No altera la composición química de la sustancia", "Formación de nuevas sustancias", "Ruptura de enlaces químicos internos"],
+                correct: 1,
+                sustento: "Un cambio físico no altera la identidad química; afecta solo aspectos externos como estado, forma o tamaño."
+            },
+            {
+                q: "¿Qué establece la ley de conservación de la masa respecto a la cantidad de materia en una reacción?",
+                options: ["La masa aumenta al formarse productos", "La masa total de reactivos es igual a la masa total de productos", "La materia se destruye parcialmente", "Los átomos cambian de identidad"],
+                correct: 1,
+                sustento: "La ley establece que la masa total permanece constante porque los átomos solo se reordenan, no se crean ni se destruyen."
+            },
+            {
+                q: "¿Qué magnitud permite determinar el grado de acidez o basicidad de una solución?",
+                options: ["Densidad", "Viscosidad", "El pH", "Punto de ebullición"],
+                correct: 2,
+                sustento: "El pH mide la concentración de protones, permitiendo establecer si una solución es ácida, neutra o básica."
+            },
+            {
+                q: "¿Cuál es la característica principal que permite identificar a los compuestos orgánicos?",
+                options: ["Ausencia de hidrógeno", "Presencia de enlaces entre átomos de carbono e hidrógeno", "Inexistencia de enlaces covalentes", "Ser exclusivamente de origen mineral"],
+                correct: 1,
+                sustento: "Los compuestos orgánicos se caracterizan principalmente por la presencia de enlaces entre átomos de carbono e hidrógeno."
+            },
+            {
+                q: "¿Por qué elementos químicos están formados exclusivamente los hidrocarburos?",
+                options: ["Carbono y Oxígeno", "Carbono e Hidrógeno", "Hidrógeno y Nitrógeno", "Carbono, Hidrógeno y Oxígeno"],
+                correct: 1,
+                sustento: "Los hidrocarburos son compuestos orgánicos formados únicamente por átomos de carbono e hidrógeno."
+            },
+            {
+                q: "¿Cuál es la característica que define de manera más precisa al estado sólido?",
+                options: ["Forma y volumen variables", "Forma fija y volumen fijo", "Gran distancia entre partículas", "Alta compresibilidad"],
+                correct: 1,
+                sustento: "El estado sólido presenta forma y volumen fijos debido a que sus partículas están próximas, ordenadas y con fuerzas de atracción intensas."
+            },
+            {
+                q: "¿Para qué se utilizan los modelos moleculares en Química?",
+                options: ["Para ver átomos reales con microscopio", "Para representar de manera simplificada estructuras invisibles a simple vista", "Para medir la masa exacta de un átomo", "Para crear nuevos elementos químicos"],
+                correct: 1,
+                sustento: "Los modelos facilitan la comprensión de la geometría molecular y la disposición de enlaces que no son visibles directamente."
+            },
+            {
+                q: "¿Cuál es la fórmula química correcta del ácido sulfúrico?",
+                options: ["HCl", "HNO3", "H2SO4", "H2CO3"],
+                correct: 2,
+                sustento: "El ácido sulfúrico está formado por dos hidrógenos, un azufre y cuatro oxígenos ($H_{2}SO_{4}$)."
+            },
+            {
+                q: "¿Cuál es la fórmula química del cloruro de sodio?",
+                options: ["NaOH", "NaCl", "KCl", "NaCO3"],
+                correct: 1,
+                sustento: "El cloruro de sodio (sal de mesa) se forma por un ion sodio ($Na^{+}$) y un ion cloruro ($Cl^{-}$), resultando en NaCl."
+            },
+            {
+                q: "¿Cuál es la fórmula química del dióxido de carbono?",
+                options: ["CO", "C2O", "CO2", "C2O4"],
+                correct: 2,
+                sustento: "El dióxido de carbono está formado por un átomo de carbono y dos de oxígeno ($CO_{2}$)."
+            }
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let timeLeft = 30 * 60;
+        let timerId;
+        let canAnswer = true;
+
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackContainer = document.getElementById('feedback-container');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+        const currentIndexSpan = document.getElementById('current-index');
+        const progressBar = document.getElementById('progress-bar');
+        const nextBtn = document.getElementById('next-btn');
+        const timerDisplay = document.getElementById('timer');
+
+        function startTimer() {
+            timerId = setInterval(() => {
+                timeLeft--;
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    endQuiz();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            canAnswer = true;
+            const q = questions[currentIndex];
+            questionText.textContent = q.q;
+            optionsContainer.innerHTML = '';
+            feedbackContainer.classList.add('hidden');
+            
+            currentIndexSpan.textContent = currentIndex + 1;
+            progressBar.style.width = `${((currentIndex) / questions.length) * 100}%`;
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full text-left p-5 rounded-xl border-2 border-teal-50 bg-teal-50/30 font-medium text-lg focus:outline-none";
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(idx);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIdx) {
+            if (!canAnswer) return;
+            canAnswer = false;
+            
+            const q = questions[currentIndex];
+            const buttons = optionsContainer.querySelectorAll('button');
+            
+            if (selectedIdx === q.correct) {
+                score++;
+                buttons[selectedIdx].classList.add('correct');
+                feedbackContainer.className = "mt-8 p-6 rounded-2xl border-l-8 bg-green-50 border-green-500 text-green-800";
+                feedbackTitle.textContent = "¡Correcto!";
+            } else {
+                buttons[selectedIdx].classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+                feedbackContainer.className = "mt-8 p-6 rounded-2xl border-l-8 bg-red-50 border-red-500 text-red-800";
+                feedbackTitle.textContent = "Incorrecto";
+            }
+
+            feedbackText.textContent = q.sustento;
+            feedbackContainer.classList.remove('hidden');
+            
+            buttons.forEach(b => b.disabled = true);
+        }
+
+        nextBtn.onclick = () => {
+            currentIndex++;
+            if (currentIndex < questions.length) {
+                loadQuestion();
+            } else {
+                endQuiz();
+            }
+        };
+
+        function endQuiz() {
+            clearInterval(timerId);
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+            progressBar.style.width = "100%";
+            
+            const finalScore = document.getElementById('final-score');
+            const finalPercent = document.getElementById('final-percent');
+            const badge = document.getElementById('performance-badge');
+            
+            finalScore.textContent = `${score}/${questions.length}`;
+            const percent = (score / questions.length) * 100;
+            finalPercent.textContent = `${percent}%`;
+
+            if (percent >= 80) {
+                badge.textContent = "Desempeño: ALTO";
+                badge.className = "mb-8 p-4 rounded-xl font-bold text-xl uppercase tracking-widest border-2 bg-green-50 text-green-700 border-green-200";
+            } else if (percent >= 51) {
+                badge.textContent = "Desempeño: MEDIO";
+                badge.className = "mb-8 p-4 rounded-xl font-bold text-xl uppercase tracking-widest border-2 bg-yellow-50 text-yellow-700 border-yellow-200";
+            } else {
+                badge.textContent = "Desempeño: BAJO";
+                badge.className = "mb-8 p-4 rounded-xl font-bold text-xl uppercase tracking-widest border-2 bg-red-50 text-red-700 border-red-200";
+            }
+        }
+
+        window.onload = () => {
+            loadQuestion();
+            startTimer();
+        };
+    </script>
+</body>
+</html>

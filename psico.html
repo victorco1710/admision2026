@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONOCIMIENTOS GENERALES - PSICOLOGÍA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0fcf5 0%, #ffffff 100%);
+            min-height: 100vh;
+            color: #1a2e35; /* Azul petróleo profundo */
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 1.5rem;
+        }
+        .option-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .option-card:hover:not(.disabled) {
+            transform: translateY(-2px);
+            background-color: #f0fffb;
+            border-color: #2dd4bf;
+        }
+        .correct-choice {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .wrong-choice {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .disabled {
+            cursor: default;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <a href="land_pag.html" class="bg-white px-4 py-2 rounded-full shadow-sm hover:shadow-md transition text-teal-600 font-semibold border border-teal-100">
+                ← Volver
+            </a>
+            <div id="timer" class="text-xl font-bold text-teal-700 bg-teal-50 px-4 py-2 rounded-lg border border-teal-200">
+                30:00
+            </div>
+        </div>
+
+        <h1 class="text-2xl md:text-3xl font-extrabold text-center mb-8 uppercase tracking-tight text-teal-900">
+            CONOCIMIENTOS GENERALES - PSICOLOGÍA
+        </h1>
+
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex justify-between text-sm mb-2 font-medium">
+                <span>Progreso del examen</span>
+                <span id="progress-text">Pregunta 1 de 20</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div id="progress-bar" class="bg-teal-500 h-3 rounded-full transition-all duration-500" style="width: 5%"></div>
+            </div>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quiz-container" class="glass-card shadow-xl p-6 md:p-10 mb-8">
+            <div id="question-box">
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold mb-6 leading-tight">
+                    Cargando pregunta...
+                </h2>
+                <div id="options-container" class="space-y-4">
+                    <!-- Options will be injected here -->
+                </div>
+            </div>
+
+            <!-- Feedback Box -->
+            <div id="feedback-box" class="hidden mt-8 p-5 rounded-xl border-l-4">
+                <p id="feedback-result" class="font-bold text-lg mb-2"></p>
+                <p id="feedback-text" class="text-sm leading-relaxed italic"></p>
+                <button id="next-btn" class="mt-6 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform active:scale-95">
+                    Siguiente Pregunta
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Screen (Hidden initially) -->
+        <div id="results-screen" class="hidden glass-card shadow-2xl p-10 text-center animate-fade-in">
+            <h2 class="text-4xl font-black mb-4 text-teal-800">Simulacro Finalizado</h2>
+            <div class="text-6xl font-bold mb-6" id="final-score">0%</div>
+            <p class="text-2xl font-semibold mb-2" id="performance-label"></p>
+            <p class="text-gray-600 mb-8" id="performance-msg"></p>
+            
+            <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-10">
+                <div class="bg-teal-50 p-4 rounded-2xl">
+                    <span class="block text-3xl font-bold text-teal-700" id="correct-count">0</span>
+                    <span class="text-xs uppercase text-teal-600 font-bold">Correctas</span>
+                </div>
+                <div class="bg-red-50 p-4 rounded-2xl">
+                    <span class="block text-3xl font-bold text-red-700" id="incorrect-count">0</span>
+                    <span class="text-xs uppercase text-red-600 font-bold">Incorrectas</span>
+                </div>
+            </div>
+
+            <button onclick="location.reload()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-10 rounded-full shadow-xl transition transform hover:scale-105">
+                Reiniciar simulador
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center text-gray-500 text-sm mt-12 pb-8">
+            <p class="font-medium">@victor 2026 - SIMULADOR ACADÉMICO DE CONOCIMIENTOS GENERALES - PSICOLOGÍA</p>
+            <p class="italic">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+        </footer>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "1. Durante la adolescencia, los estudiantes comienzan a mostrar mayor capacidad para analizar situaciones complejas, formular hipótesis, cuestionar normas establecidas y reflexionar sobre conceptos abstractos. Desde la psicología del desarrollo cognitivo, este tipo de razonamiento corresponde principalmente a:",
+                options: [
+                    "Pensamiento lógico-concreto",
+                    "Etapa de las operaciones formales",
+                    "Pensamiento preoperacional",
+                    "Aprendizaje por imitación"
+                ],
+                correct: 1,
+                sustento: "La teoría del desarrollo cognitivo explica que, a partir de la adolescencia, se consolida una etapa en la que el pensamiento deja de depender exclusivamente de objetos concretos, permitiendo operar con abstracciones e hipótesis complejas."
+            },
+            {
+                q: "2. En el proceso educativo, se observa que muchos estudiantes comprenden mejor cuando interactúan con sus compañeros y reciben orientación del maestro. Este enfoque se asocia principalmente con:",
+                options: [
+                    "Aportes teóricos de Jean Piaget",
+                    "Teoría del condicionamiento operante",
+                    "Aportes teóricos de Lev Vygotsky (Enfoque sociocultural)",
+                    "Psicología humanista"
+                ],
+                correct: 2,
+                sustento: "La teoría sociocultural sostiene que el aprendizaje es un proceso socialmente mediado, en el que el lenguaje y la interacción con otros cumplen un rol central en contextos culturales específicos."
+            },
+            {
+                q: "3. Cuando un estudiante logra retener información durante un corto periodo, como instrucciones o datos inmediatos necesarios para una actividad, se pone en funcionamiento principalmente:",
+                options: [
+                    "La memoria sensorial",
+                    "La memoria de trabajo",
+                    "La memoria episódica",
+                    "La memoria a largo plazo"
+                ],
+                correct: 1,
+                sustento: "La psicología cognitiva describe la memoria de trabajo como un sistema encargado de mantener y manipular información durante breves periodos de tiempo mientras se realizan tareas cognitivas."
+            },
+            {
+                q: "4. Cuando una persona estudia porque siente curiosidad, satisfacción personal o interés genuino por aprender, se habla principalmente de:",
+                options: [
+                    "Motivación extrínseca",
+                    "Motivación intrínseca",
+                    "Refuerzo negativo",
+                    "Presión académica"
+                ],
+                correct: 1,
+                sustento: "La motivación intrínseca se define como el impulso que surge del interés propio por la actividad, sin necesidad de recompensas externas, favoreciendo aprendizajes más profundos y autónomos."
+            },
+            {
+                q: "5. Cuando un estudiante repite una conducta porque ha recibido elogios, reconocimiento o una calificación positiva, este principio se denomina:",
+                options: [
+                    "Inhibición de respuesta",
+                    "Reforzamiento",
+                    "Modelado social",
+                    "Percepción selectiva"
+                ],
+                correct: 1,
+                sustento: "Desde el enfoque conductista, el reforzamiento explica que las conductas tienden a fortalecerse cuando van seguidas de consecuencias positivas como reconocimiento o estímulos sociales."
+            },
+            {
+                q: "6. En el aula, se observa que algunos estudiantes aprenden con mayor rapidez, mientras que otros requieren más tiempo. Esta diversidad responde a:",
+                options: [
+                    "Falta de interés académico",
+                    "Diferencias individuales o diversidad cognitiva",
+                    "Niveles de memoria sensorial",
+                    "Etapas de condicionamiento clásico"
+                ],
+                correct: 1,
+                sustento: "La psicología educativa reconoce que los estudiantes presentan diferencias en la forma y el ritmo en que procesan la información, lo que se denomina diversidad cognitiva."
+            },
+            {
+                q: "7. Cuando una persona interpreta una situación a partir de sus experiencias previas, creencias y contexto sociocultural, el proceso se denomina:",
+                options: [
+                    "Sensación pura",
+                    "Condicionamiento",
+                    "Percepción",
+                    "Memoria mecánica"
+                ],
+                correct: 2,
+                sustento: "La percepción implica organizar, interpretar y dar significado a la información sensorial, influida por factores subjetivos y culturales del individuo."
+            },
+            {
+                q: "8. Reconocer las propias emociones y regularlas de manera adecuada resulta fundamental para el aprendizaje. Esta capacidad se vincula con:",
+                options: [
+                    "El coeficiente intelectual",
+                    "La inteligencia emocional",
+                    "La memoria a largo plazo",
+                    "El razonamiento abstracto"
+                ],
+                correct: 1,
+                sustento: "La inteligencia emocional comprende habilidades relacionadas con el reconocimiento, comprensión y regulación de las emociones propias y ajenas, influyendo en el bienestar y rendimiento."
+            },
+            {
+                q: "9. Desde el enfoque psicoanalítico, se plantea que una parte importante del comportamiento está influida por procesos no plenamente conscientes, concepto asociado a:",
+                options: [
+                    "El refuerzo positivo",
+                    "La zona de desarrollo próximo",
+                    "El inconsciente",
+                    "El autoconcepto"
+                ],
+                correct: 2,
+                sustento: "El psicoanálisis sostiene que pensamientos, deseos y conflictos no conscientes influyen en la conducta humana, aportando una mirada compleja sobre la personalidad."
+            },
+            {
+                q: "10. En contextos educativos, los estudiantes aprenden muchas conductas observando a otras personas. Este tipo de aprendizaje se conoce como:",
+                options: [
+                    "Aprendizaje por observación (Vicario)",
+                    "Aprendizaje memorístico",
+                    "Condicionamiento operante",
+                    "Desarrollo psicosexual"
+                ],
+                correct: 0,
+                sustento: "El aprendizaje por observación destaca el rol de los modelos sociales en la adquisición de conductas, donde el maestro actúa como un modelo fundamental."
+            },
+            {
+                q: "11. ¿Cuál de los siguientes procesos se relaciona directamente con la capacidad de seleccionar estímulos relevantes y descartar aquellos que no lo son?",
+                options: [
+                    "La percepción sensorial",
+                    "La memoria episódica",
+                    "La atención",
+                    "El razonamiento lógico"
+                ],
+                correct: 2,
+                sustento: "La atención es un proceso cognitivo básico que permite seleccionar información relevante del entorno y focalizar los recursos mentales mientras se inhiben los irrelevantes."
+            },
+            {
+                q: "12. ¿Qué tipo de memoria permite almacenar conocimientos y experiencias de manera duradera a lo largo del tiempo?",
+                options: [
+                    "Memoria a corto plazo",
+                    "Memoria de trabajo",
+                    "Memoria sensorial",
+                    "Memoria a largo plazo"
+                ],
+                correct: 3,
+                sustento: "La memoria a largo plazo es el sistema encargado de almacenar información de manera relativamente permanente, permitiendo que contenidos se integren y consoliden."
+            },
+            {
+                q: "13. Jean Piaget describió la etapa donde se consolida el pensamiento abstracto y la capacidad para razonar sobre situaciones hipotéticas como:",
+                options: [
+                    "Etapa sensoriomotriz",
+                    "Etapa preoperacional",
+                    "Etapa de operaciones concretas",
+                    "Etapa de las operaciones formales"
+                ],
+                correct: 3,
+                sustento: "Según Piaget, las operaciones formales representan un avance cualitativo que permite razonar de manera abstracta y sistemática, fundamental para el nivel secundario."
+            },
+            {
+                q: "14. Cuando una conducta se fortalece porque va seguida de una consecuencia positiva, se está aplicando el principio de:",
+                options: [
+                    "Castigo positivo",
+                    "Reforzamiento",
+                    "Extinción",
+                    "Asimilación"
+                ],
+                correct: 1,
+                sustento: "El reforzamiento es central en el conductismo; explica cómo las consecuencias (recompensas o resultados satisfactorios) aumentan la probabilidad de repetición de una conducta."
+            },
+            {
+                q: "15. Desde la psicología cognitiva, el aprendizaje eficaz donde el estudiante relaciona nueva información con conocimientos previos se denomina:",
+                options: [
+                    "Aprendizaje memorístico",
+                    "Aprendizaje por descubrimiento",
+                    "Aprendizaje significativo",
+                    "Aprendizaje mecánico"
+                ],
+                correct: 2,
+                sustento: "El aprendizaje significativo implica integrar activamente la nueva información a los esquemas previos, generando comprensión y organización cognitiva duradera."
+            },
+            {
+                q: "16. El concepto de Sigmund Freud que se vincula con contenidos mentales no conscientes que influyen en la conducta es:",
+                options: [
+                    "El Ello",
+                    "El Inconsciente",
+                    "El Superyó",
+                    "La Libido"
+                ],
+                correct: 1,
+                sustento: "El inconsciente constituye una dimensión fundamental de la vida psíquica donde se alojan deseos y conflictos no accesibles a la conciencia que influyen en los actos."
+            },
+            {
+                q: "17. Desde una perspectiva general y contemporánea, la personalidad se caracteriza por ser:",
+                options: [
+                    "Puramente hereditaria",
+                    "Un conjunto estable construido por interacción biológica, psicológica y social",
+                    "Totalmente determinada por el ambiente",
+                    "Invariable a lo largo de toda la vida"
+                ],
+                correct: 1,
+                sustento: "La personalidad se construye a partir de la interacción entre factores biológicos, psicológicos y sociales, destacando su carácter dinámico y no determinista."
+            },
+            {
+                q: "18. Una de las funciones principales de las emociones desde la Psicología es:",
+                options: [
+                    "Bloquear el pensamiento lógico",
+                    "Función adaptativa para orientar la conducta",
+                    "Sustituir a los procesos cognitivos",
+                    "Únicamente el desahogo físico"
+                ],
+                correct: 1,
+                sustento: "Las emociones cumplen una función adaptativa esencial evaluando situaciones del entorno y orientando la conducta rápidamente en función de su relevancia."
+            },
+            {
+                q: "19. El proceso de búsqueda de identidad en la adolescencia se relaciona principalmente con:",
+                options: [
+                    "La memoria de trabajo",
+                    "El autoconcepto",
+                    "El condicionamiento clásico",
+                    "La percepción sensorial"
+                ],
+                correct: 1,
+                sustento: "La construcción de la identidad se vincula estrechamente con el autoconcepto, permitiendo al individuo dotar de coherencia a su historia, valores y proyectos."
+            },
+            {
+                q: "20. Desde la psicología del aprendizaje, el error se concibe como:",
+                options: [
+                    "Una señal de incapacidad intelectual",
+                    "Un fracaso definitivo en el proceso",
+                    "Una fuente de información y componente natural del proceso",
+                    "Algo que debe evitarse a toda costa"
+                ],
+                correct: 2,
+                sustento: "El error es un componente natural del aprendizaje que proporciona información sobre las estrategias cognitivas del estudiante y permite ajustar la enseñanza."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 30 * 60;
+        let timerId;
+
+        function startTimer() {
+            timerId = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    endQuiz();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            const qData = questions[currentQuestion];
+            const qText = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options-container');
+            const feedbackBox = document.getElementById('feedback-box');
+            
+            // Reset UI
+            feedbackBox.classList.add('hidden');
+            optionsContainer.innerHTML = '';
+            
+            // Update Progress
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            document.getElementById('progress-text').textContent = `Pregunta ${currentQuestion + 1} de ${questions.length}`;
+            
+            // Set Question
+            qText.textContent = qData.q;
+            
+            // Generate Options
+            qData.options.forEach((opt, index) => {
+                const btn = document.createElement('div');
+                btn.className = "option-card p-4 rounded-xl border-2 text-lg font-medium shadow-sm bg-white";
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, selectedBtn) {
+            const qData = questions[currentQuestion];
+            const options = document.querySelectorAll('.option-card');
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackResult = document.getElementById('feedback-result');
+            const feedbackText = document.getElementById('feedback-text');
+            
+            // Disable all buttons
+            options.forEach(opt => opt.classList.add('disabled'));
+            
+            if (selectedIndex === qData.correct) {
+                selectedBtn.classList.add('correct-choice');
+                feedbackBox.classList.add('bg-green-50', 'border-green-500');
+                feedbackResult.textContent = "¡CORRECTO!";
+                feedbackResult.className = "font-bold text-lg mb-2 text-green-700";
+                score++;
+            } else {
+                selectedBtn.classList.add('wrong-choice');
+                options[qData.correct].classList.add('correct-choice');
+                feedbackBox.classList.add('bg-red-50', 'border-red-500');
+                feedbackResult.textContent = "INCORRECTO";
+                feedbackResult.className = "font-bold text-lg mb-2 text-red-700";
+            }
+            
+            feedbackText.textContent = qData.sustento;
+            feedbackBox.classList.remove('hidden');
+        }
+
+        document.getElementById('next-btn').onclick = () => {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                endQuiz();
+            }
+        };
+
+        function endQuiz() {
+            clearInterval(timerId);
+            document.getElementById('quiz-container').classList.add('hidden');
+            const resultsScreen = document.getElementById('results-screen');
+            resultsScreen.classList.remove('hidden');
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('final-score').textContent = `${percentage}%`;
+            document.getElementById('correct-count').textContent = score;
+            document.getElementById('incorrect-count').textContent = questions.length - score;
+            
+            const label = document.getElementById('performance-label');
+            const msg = document.getElementById('performance-msg');
+            
+            if (percentage >= 85) {
+                label.textContent = "DESEMPEÑO ALTO";
+                label.className = "text-2xl font-semibold mb-2 text-green-600";
+                msg.textContent = "¡Excelente dominio! Estás listo para el examen académico.";
+            } else if (percentage >= 60) {
+                label.textContent = "DESEMPEÑO MEDIO";
+                label.className = "text-2xl font-semibold mb-2 text-yellow-600";
+                msg.textContent = "Buen trabajo, pero te recomendamos repasar los sustentos teóricos.";
+            } else {
+                label.textContent = "DESEMPEÑO BAJO";
+                label.className = "text-2xl font-semibold mb-2 text-red-600";
+                msg.textContent = "Es necesario profundizar en el estudio del repositorio de psicología.";
+            }
+        }
+
+        // Initialize
+        window.onload = () => {
+            startTimer();
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>

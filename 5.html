@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador: IA en la Educación Boliviana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f7f9 0%, #ffffff 100%);
+            min-height: 100vh;
+            color: #1a2e35; /* Azul petróleo profundo */
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(5px);
+            background-color: #f0fdfa;
+        }
+        .progress-bar-fill {
+            transition: width 0.4s ease-out;
+        }
+        /* Ocultar scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <a href="land_pag.html" class="bg-white px-6 py-2 rounded-full shadow-sm border border-cyan-100 hover:bg-cyan-50 transition-colors text-cyan-700 font-semibold text-sm">
+                ← Volver
+            </a>
+            <h1 class="text-xl md:text-2xl font-bold text-center text-slate-800">
+                Inteligencia artificial en la educación boliviana: oportunidades, retos y perspectivas científicas
+            </h1>
+            <div id="timer" class="bg-white px-6 py-2 rounded-full shadow-sm border border-red-100 text-red-600 font-bold tabular-nums">
+                30:00
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="mb-8">
+            <div class="flex justify-between text-xs font-semibold mb-2 uppercase tracking-wider text-slate-500">
+                <span id="progress-text">Pregunta 1 de 30</span>
+                <span id="score-text">Puntaje: 0</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-3">
+                <div id="progress-bar" class="bg-gradient-to-r from-cyan-400 to-emerald-400 h-3 rounded-full progress-bar-fill" style="width: 3.33%"></div>
+            </div>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quiz-container" class="glass-card rounded-3xl p-6 md:p-10 min-h-[400px]">
+            <!-- Intro View -->
+            <div id="intro-view" class="text-center space-y-6">
+                <div class="py-10">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-4">Simulador de Comprensión Lectora</h2>
+                    <p class="text-slate-600 max-w-lg mx-auto leading-relaxed">
+                        Este simulador evalúa tu capacidad de análisis crítico basado en el repositorio académico del Ministerio de Educación. Tienes 30 minutos para 30 preguntas de alta complejidad.
+                    </p>
+                </div>
+                <button onclick="startQuiz()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-12 rounded-2xl shadow-lg transition-transform hover:scale-105">
+                    EMPEZAR EXAMEN
+                </button>
+            </div>
+
+            <!-- Question View (Hidden initially) -->
+            <div id="question-view" class="hidden space-y-8">
+                <div id="question-content">
+                    <h3 id="question-text" class="text-xl md:text-2xl font-bold text-slate-800 leading-snug mb-6">
+                        <!-- Pregunta aquí -->
+                    </h3>
+                    <div id="options-container" class="grid gap-4">
+                        <!-- Opciones aquí -->
+                    </div>
+                </div>
+
+                <!-- Feedback Section (Hidden initially) -->
+                <div id="feedback-container" class="hidden mt-6 p-6 rounded-2xl border-l-4">
+                    <p id="feedback-status" class="font-bold text-lg mb-2"></p>
+                    <p id="feedback-text" class="text-sm md:text-base text-slate-700 leading-relaxed"></p>
+                    <button id="next-btn" onclick="nextQuestion()" class="mt-4 bg-slate-800 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-900 transition-all">
+                        Siguiente Pregunta
+                    </button>
+                </div>
+            </div>
+
+            <!-- Result View (Hidden initially) -->
+            <div id="result-view" class="hidden text-center space-y-8 py-10">
+                <h2 class="text-4xl font-bold text-slate-800">Resultado Final</h2>
+                <div class="flex justify-center gap-10">
+                    <div class="text-center">
+                        <p class="text-5xl font-black text-emerald-500" id="final-score">0</p>
+                        <p class="text-slate-500 font-semibold">PUNTOS</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-5xl font-black text-cyan-500" id="final-percent">0%</p>
+                        <p class="text-slate-500 font-semibold">LOGRO</p>
+                    </div>
+                </div>
+                <div id="desempeno-badge" class="inline-block px-8 py-3 rounded-full text-white font-bold text-xl">
+                    DESEMPEÑO: MEDIO
+                </div>
+                <p id="desempeno-msg" class="text-slate-600 italic"></p>
+                <button onclick="location.reload()" class="bg-slate-800 text-white px-10 py-4 rounded-2xl font-bold hover:bg-slate-900 shadow-xl transition-all">
+                    Reiniciar simulador
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-slate-400 text-sm space-y-2 pb-10">
+            <p class="font-bold tracking-widest text-slate-500 uppercase">SIMULADOR ACADÉMICO DE COMPRENSIÓN LECTORA</p>
+            <p class="italic">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+        </footer>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "¿Qué actor es mencionado primero como iniciador de la implementación de herramientas de IA en la educación boliviana?",
+                options: ["Ministerio de Educación", "Universidad Católica Boliviana", "UNESCO", "Universidad Autónoma Tomás Frías"],
+                correct: 0,
+                sustento: "El artículo introduce primero al Ministerio de Educación como responsable del programa 'Bolivia Aprende Digital' (2022-2025). Los proyectos de la UCB, UATF y UMSA se describen posteriormente."
+            },
+            {
+                q: "¿Qué organismo proporciona la cifra del 38% de hogares rurales bolivianos con conexión a Internet de banda ancha?",
+                options: ["UNESCO", "Ministerio de Educación", "Instituto Nacional de Estadística (INE)", "Universidad Mayor de San Andrés"],
+                correct: 2,
+                sustento: "Según el INE (2023), solo el 38% de los hogares rurales dispone de conexión a Internet de banda ancha. La UNESCO reporta datos regionales y el Ministerio impulsa programas, pero el INE es la fuente estadística."
+            },
+            {
+                q: "¿Cuál es la segunda consecuencia social que se menciona respecto a la adopción de la IA en la educación boliviana?",
+                options: ["Ampliación de la desigualdad educativa", "Dependencia excesiva del algoritmo", "Escasez de docentes capacitados", "Privacidad de datos personales"],
+                correct: 1,
+                sustento: "La dependencia excesiva del algoritmo es el segundo efecto social mencionado después de la 'ampliación de la desigualdad educativa' (primera consecuencia)."
+            },
+            {
+                q: "El artículo señala que los conceptos neurocientíficos clave para la personalización del aprendizaje son:",
+                options: ["Neuroplasticidad y memoria de trabajo", "Inteligencia artificial y aprendizaje automático", "Plasticidad sináptica y carga cognitiva", "Zona de desarrollo próximo y sinapsis"],
+                correct: 2,
+                sustento: "Dos conceptos resultan clave: plasticidad sináptica y carga cognitiva. Aunque otros términos aparecen, estos son citados específicamente como los dos esenciales."
+            },
+            {
+                q: "¿Cuáles son los principales desafíos que se identifican para la integración de la IA en la educación boliviana?",
+                options: ["Falta de presupuesto y alta deserción escolar", "Infraestructura, capacitación docente y privacidad", "Desigualdad territorial y escasez de dispositivos", "Sesgo algorítmico y falta de interés estudiantil"],
+                correct: 1,
+                sustento: "En la sección de desafíos, el artículo enumera tres problemas principales: (1) Infraestructura y conectividad, (2) Capacitación docente y (3) Privacidad y sesgo algorítmico."
+            },
+            {
+                q: "¿Qué porcentaje de hogares rurales en Bolivia dispone de conexión a Internet de banda ancha?",
+                options: ["71%", "22%", "84%", "38%"],
+                correct: 3,
+                sustento: "El texto indica explícitamente que 'solo el 38% de los hogares rurales dispone de conexión a Internet de banda ancha'."
+            },
+            {
+                q: "¿Qué consecuencia se puede deducir si la brecha de conectividad entre áreas rurales y urbanas no se corrige al introducir IA?",
+                options: ["La desigualdad educativa se incrementará", "La deserción escolar disminuirá en el campo", "La capacitación docente será innecesaria", "Habrá menos necesidad de infraestructura"],
+                correct: 0,
+                sustento: "La disparidad limita la implementación uniforme y podría ampliar la desigualdad educativa si no se adopta una estrategia de mitigación."
+            },
+            {
+                q: "¿Cuál es la principal fortaleza del enfoque de tutores virtuales basados en IA en la educación secundaria boliviana?",
+                options: ["Reemplazo total del docente físico", "Mejora académica clara y disminución de la deserción", "Gratuidad de la conexión satelital", "Eliminación de la carga cognitiva"],
+                correct: 1,
+                sustento: "El estudio de la UCB mostró un aumento de calificaciones (6.8 a 8.1) y una reducción del 12% en la tasa de deserción en matemática."
+            },
+            {
+                q: "¿Qué tan válido es el argumento de que la IA reducirá automáticamente las brechas sociales en la educación boliviana?",
+                options: ["Totalmente válido", "Es solo parcialmente válido debido a las limitaciones estructurales", "Falso, la IA no tiene impacto social", "No se puede determinar"],
+                correct: 1,
+                sustento: "Es parcialmente válido porque, aunque ofrece oportunidades, depende críticamente de mejoras en conectividad y formación docente, por lo que no es automático."
+            },
+            {
+                q: "Respecto a los resultados del estudio piloto con tutor virtual basado en IA, la evidencia es:",
+                options: ["Concluyente para todo el país", "Válida como indicio preliminar pero no generalizable", "Insuficiente y sin base científica", "Irrelevante para la educación secundaria"],
+                correct: 1,
+                sustento: "La evidencia es válida como indicio preliminar (1,200 estudiantes en la UCB), pero no suficiente para afirmar mejoras nacionales sin estudios en contextos rurales."
+            },
+            {
+                q: "¿Cuál de los siguientes aspectos representa una posible limitación (sesgo) del estudio piloto sobre tutores virtuales?",
+                options: ["El uso de Microsoft Education", "La muestra no representa a todo el sistema educativo boliviano", "La duración de solo un semestre", "El enfoque en el área de matemáticas"],
+                correct: 1,
+                sustento: "El estudio se realizó en la UCB con una muestra limitada que no especifica inclusión de áreas rurales, constituyendo una fuente de sesgo de representatividad."
+            },
+            {
+                q: "¿Cuál es la principal implicación económica de adoptar IA en la educación boliviana?",
+                options: ["Compra de licencias de software", "Invertir en redes de banda ancha y formación docente", "Pago de salarios a expertos extranjeros", "Distribución gratuita de tablets"],
+                correct: 1,
+                sustento: "La efectividad depende de invertir en infraestructura rural y programas de formación continua para docentes."
+            },
+            {
+                q: "¿Cuál de los siguientes sesgos potenciales NO se discute explícitamente en el artículo?",
+                options: ["Sesgo de género", "Sesgo algorítmico urbano", "Brecha de conectividad", "Falta de capacitación docente"],
+                correct: 0,
+                sustento: "El artículo menciona sesgos urbanos, de conectividad y formación, pero no aborda en ningún pasaje la discriminación o sesgo de género."
+            },
+            {
+                q: "¿Cuál es la mayor fortaleza del enfoque científico basado en modular la carga cognitiva?",
+                options: ["Evitar que el alumno estudie", "Ajustar la complejidad a la zona de desarrollo próximo", "Incrementar la plasticidad sináptica de forma infinita", "Sustituir la memoria de trabajo"],
+                correct: 1,
+                sustento: "Permite ajustar la complejidad para maximizar la plasticidad sináptica sin saturar la carga cognitiva, favoreciendo la retención a largo plazo."
+            },
+            {
+                q: "¿Cuál de los siguientes actores es el más determinante para garantizar una integración responsable de la IA?",
+                options: ["Empresas tecnológicas", "Ministerio de Educación", "Los estudiantes de secundaria", "Organizaciones internacionales"],
+                correct: 1,
+                sustento: "El Ministerio lidera programas, propone inversiones, diseña capacitación y coordina políticas de datos, roles esenciales para la integración responsable."
+            },
+            {
+                q: "Para que la IA contribuya de forma efectiva, es necesario orientar las soluciones principalmente a:",
+                options: ["Inversión rural, formación docente y protección de datos", "Compra de servidores y laptops urbanas", "Eliminar los exámenes tradicionales", "Digitalizar libros de texto antiguos"],
+                correct: 0,
+                sustento: "Las conclusiones resumen estas tres líneas de acción como fundamentales para superar obstáculos estructurales, técnicos y éticos."
+            },
+            {
+                q: "¿Qué consecuencia se puede deducir si se invierte en redes de banda ancha en zonas rurales?",
+                options: ["Cierre de la brecha digital y posibilidad de usar IA", "Aumento inmediato de las cuotas escolares", "Dependencia total de satélites extranjeros", "Eliminación de la educación presencial"],
+                correct: 0,
+                sustento: "Invertir en banda ancha rural es la recomendación clave para lograr la integración responsable y cerrar la brecha digital actual (38% rural)."
+            },
+            {
+                q: "¿Cuál es el propósito económico principal de mejorar la conectividad rural en este contexto?",
+                options: ["Vender más computadoras", "Evitar ampliar la desigualdad educativa y fortalecer capital humano", "Cobrar más impuestos por uso de internet", "Promover el turismo digital"],
+                correct: 1,
+                sustento: "Al reducir la brecha, se evita la desigualdad y se crea una base para el desarrollo económico al fortalecer las capacidades de los estudiantes."
+            },
+            {
+                q: "¿Qué efecto probable tendría la falta de capacitación docente en IA?",
+                options: ["Los docentes trabajarán menos", "Dependencia excesiva e incapacidad de intervenir ante errores del algoritmo", "Mayor creatividad en el aula", "Desaparición de los libros de texto"],
+                correct: 1,
+                sustento: "Sin formación, los profesores podrían depender excesivamente del sistema sin poder interpretar rutas pedagógicas inadecuadas propuestas por la IA."
+            },
+            {
+                q: "¿Cuál es el mensaje principal implícito sobre los datos estadísticos de conectividad (INE 2023)?",
+                options: ["Que Bolivia está en la vanguardia digital", "Que la desigualdad de acceso limita los beneficios de la IA", "Que las áreas urbanas ya no necesitan inversión", "Que el INE debe actualizar sus censos"],
+                correct: 1,
+                sustento: "El autor usa los datos para señalar que la desigualdad de conectividad es un límite crítico que puede ampliar la brecha educativa."
+            },
+            {
+                q: "¿Qué conclusión lógica se extrae sobre los procesos técnicos de IA que personalizan el aprendizaje?",
+                options: ["Sustituyen la plasticidad cerebral", "Adaptan ejercicios para no saturar la carga cognitiva", "Siempre son 100% precisos", "Funcionan mejor sin intervención humana"],
+                correct: 1,
+                sustento: "Los algoritmos estiman la zona de desarrollo próximo para maximizar la plasticidad sin saturar la carga cognitiva."
+            },
+            {
+                q: "¿Qué se puede concluir sobre el impacto de la personalización por IA en el desempeño académico boliviano?",
+                options: ["No tiene ningún impacto medible", "Tiene un impacto positivo en rendimiento y retención (deserción)", "Solo funciona en estudiantes de primaria", "Es negativo para el aprendizaje a largo plazo"],
+                correct: 1,
+                sustento: "Los datos de la UCB (calificaciones de 6.8 a 8.1 y -12% deserción) permiten inferir un impacto positivo real."
+            },
+            {
+                q: "La principal diferencia entre tutores virtuales y analítica de aprendizaje es:",
+                options: ["El tutor enseña contenido; la analítica predice y previene riesgos", "La analítica es manual y el tutor es automático", "No hay diferencia, son sinónimos", "El tutor es para áreas rurales y la analítica para urbanas"],
+                correct: 0,
+                sustento: "El tutor ofrece rutas de estudio personalizadas (enseñanza), mientras que la analítica recolecta datos para predecir deserción (prevención)."
+            },
+            {
+                q: "La perspectiva futura del autor para la integración de la IA es:",
+                options: ["Optimismo absoluto sin condiciones", "Dependiente de la combinación de infraestructura, formación y leyes", "Pesimismo por la falta de recursos", "Indiferencia ante la tecnología"],
+                correct: 1,
+                sustento: "El autor indica que la efectividad requiere inversión rural, formación continua y políticas de datos como un conjunto esencial."
+            },
+            {
+                q: "Todas las metodologías basadas en IA descritas (Tutor, Analítica, RA) comparten como objetivo:",
+                options: ["Personalización del aprendizaje", "Reemplazo de la infraestructura física", "Ahorro de papel en las escuelas", "Facilitar el trabajo administrativo"],
+                correct: 0,
+                sustento: "A lo largo del artículo, cada ejemplo se presenta como un medio para adaptar la instrucción o el apoyo a la necesidad individual del estudiante."
+            },
+            {
+                q: "Si se amplía el uso de analítica de aprendizaje en Bolivia, ¿qué es probable que ocurra?",
+                options: ["Aumentará la deserción escolar", "Disminuirá la deserción escolar gracias a intervenciones tempranas", "Se acabará el presupuesto para merienda escolar", "Los estudiantes dejarán de asistir a clase"],
+                correct: 1,
+                sustento: "La evidencia del proyecto en Tarija (67% de estudiantes en riesgo continuaron sus estudios) sugiere que a mayor escala disminuirá la deserción."
+            },
+            {
+                q: "¿Qué papel jugó la pandemia de COVID-19 en la incorporación de IA en Bolivia?",
+                options: ["Retrasó todo avance tecnológico", "Fue un catalizador que aceleró la digitalización regional", "Obligó a prohibir el uso de internet en escuelas", "No tuvo ninguna relación"],
+                correct: 1,
+                sustento: "La pandemia aceleró la digitalización en la región (78% de países usaron plataformas), fungiendo como catalizador para la integración de IA en Bolivia."
+            },
+            {
+                q: "Si el gobierno capacita docentes y amplía conectividad rural simultáneamente, ¿qué ocurrirá?",
+                options: ["Se reducirá la brecha de acceso y mejorará la equidad educativa", "Los docentes rurales renunciarán", "Habrá una saturación de carga cognitiva", "No habrá cambios significativos"],
+                correct: 0,
+                sustento: "Al atacar las dos limitaciones principales mencionadas, se espera una mejora sustancial en la equidad y calidad educativa."
+            },
+            {
+                q: "¿Qué ocurriría si un sistema de IA no ajusta la complejidad al nivel de desarrollo próximo?",
+                options: ["El estudiante aprenderá más rápido", "La carga cognitiva aumentará y disminuirá el rendimiento", "La plasticidad sináptica se detendrá", "El software dejará de funcionar"],
+                correct: 1,
+                sustento: "Según la teoría de Sweller, si la tarea supera la capacidad de procesamiento (memoria de trabajo), el rendimiento y la transferencia disminuyen."
+            },
+            {
+                q: "¿Qué evidencia adicional sería necesaria para afirmar que la IA reducirá brechas sociales a nivel nacional?",
+                options: ["Más fotos de estudiantes usando tablets", "Estudios longitudinales que comparen poblaciones rurales y urbanas", "Una encuesta de opinión en Facebook", "Un decreto gubernamental"],
+                correct: 1,
+                sustento: "Se requieren estudios a largo plazo que midan cambios en desempeño y deserción en diversos contextos antes y después de la adopción tecnológica."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 30 * 60; // 30 minutos en segundos
+        let timerId = null;
+
+        function startQuiz() {
+            document.getElementById('intro-view').classList.add('hidden');
+            document.getElementById('question-view').classList.remove('hidden');
+            showQuestion();
+            startTimer();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('progress-text').innerText = `Pregunta ${currentQuestion + 1} de 30`;
+            document.getElementById('progress-bar').style.width = `${((currentQuestion + 1) / 30) * 100}%`;
+            
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full p-4 rounded-xl border-2 border-slate-100 hover:border-cyan-200 bg-white font-medium text-slate-700 flex items-center";
+                btn.innerHTML = `<span class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center mr-4 text-xs font-bold text-slate-400 border border-slate-100">${String.fromCharCode(65 + idx)}</span> ${opt}`;
+                btn.onclick = () => checkAnswer(idx);
+                container.appendChild(btn);
+            });
+
+            document.getElementById('feedback-container').classList.add('hidden');
+        }
+
+        function checkAnswer(idx) {
+            const q = questions[currentQuestion];
+            const options = document.querySelectorAll('.option-btn');
+            const feedback = document.getElementById('feedback-container');
+            const status = document.getElementById('feedback-status');
+            const fText = document.getElementById('feedback-text');
+
+            // Deshabilitar todas
+            options.forEach(btn => btn.disabled = true);
+
+            if (idx === q.correct) {
+                score++;
+                status.innerText = "¡CORRECTO!";
+                status.className = "font-bold text-lg mb-2 text-emerald-600";
+                feedback.className = "mt-6 p-6 rounded-2xl border-l-4 bg-emerald-50 border-emerald-400 block animate-in fade-in slide-in-from-bottom-2";
+                options[idx].classList.add('border-emerald-400', 'bg-emerald-50');
+            } else {
+                status.innerText = "INCORRECTO";
+                status.className = "font-bold text-lg mb-2 text-red-600";
+                feedback.className = "mt-6 p-6 rounded-2xl border-l-4 bg-red-50 border-red-400 block animate-in fade-in slide-in-from-bottom-2";
+                options[idx].classList.add('border-red-400', 'bg-red-50');
+                options[q.correct].classList.add('border-emerald-400', 'bg-emerald-50');
+            }
+
+            fText.innerText = q.sustento;
+            document.getElementById('score-text').innerText = `Puntaje: ${score}`;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            clearInterval(timerId);
+            document.getElementById('question-view').classList.add('hidden');
+            document.getElementById('result-view').classList.remove('hidden');
+            
+            const percent = Math.round((score / 30) * 100);
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-percent').innerText = `${percent}%`;
+
+            const badge = document.getElementById('desempeno-badge');
+            const msg = document.getElementById('desempeno-msg');
+
+            if (percent >= 80) {
+                badge.innerText = "DESEMPEÑO: ALTO";
+                badge.className = "inline-block px-8 py-3 rounded-full bg-emerald-500 text-white font-bold text-xl";
+                msg.innerText = "Excelente capacidad de análisis. Estás preparado para la prueba académica.";
+            } else if (percent >= 51) {
+                badge.innerText = "DESEMPEÑO: MEDIO";
+                badge.className = "inline-block px-8 py-3 rounded-full bg-orange-400 text-white font-bold text-xl";
+                msg.innerText = "Buen desempeño, pero necesitas reforzar la lectura crítica y los detalles estadísticos.";
+            } else {
+                badge.innerText = "DESEMPEÑO: BAJO";
+                badge.className = "inline-block px-8 py-3 rounded-full bg-red-500 text-white font-bold text-xl";
+                msg.innerText = "Es necesario volver a leer el texto con mayor atención a los sustentos científicos.";
+            }
+        }
+
+        function startTimer() {
+            timerId = setInterval(() => {
+                timeLeft--;
+                const mins = Math.floor(timeLeft / 60);
+                const secs = timeLeft % 60;
+                document.getElementById('timer').innerText = `${mins}:${secs.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    showResults();
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

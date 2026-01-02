@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONOCIMIENTOS GENERALES- HISTORIA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f7f4 0%, #ffffff 100%);
+            min-height: 100vh;
+            color: #2d3748; /* Azul petróleo profundo / Gris oscuro */
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: #4fd1c5;
+            background-color: #f0fff4;
+        }
+        .correct { background-color: #c6f6d5 !important; border-color: #48bb78 !important; }
+        .incorrect { background-color: #fed7d7 !important; border-color: #f56565 !important; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header / Nav -->
+    <div class="max-w-4xl mx-auto flex justify-between items-center mb-8">
+        <a href="land_pag.html" class="bg-white px-6 py-2 rounded-full shadow-sm hover:shadow-md transition font-semibold text-teal-600 border border-teal-100">
+            ← Volver
+        </a>
+        <div class="text-right">
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider">Tiempo Restante</p>
+            <p id="timer" class="text-2xl font-bold text-teal-700 tracking-tighter">30:00</p>
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto">
+        <!-- Intro Screen -->
+        <div id="intro-screen" class="glass-card p-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4 text-teal-900">CONOCIMIENTOS GENERALES- HISTORIA</h1>
+            <p class="text-lg text-gray-600 mb-8">Simulador Académico de Educación Superior. Prepárate para el éxito con este banco de preguntas oficial.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div class="p-4 bg-teal-50 rounded-xl">
+                    <span class="block text-2xl">📝</span>
+                    <span class="font-bold text-teal-800">20 Preguntas</span>
+                </div>
+                <div class="p-4 bg-teal-50 rounded-xl">
+                    <span class="block text-2xl">⏳</span>
+                    <span class="font-bold text-teal-800">30 Minutos</span>
+                </div>
+                <div class="p-4 bg-teal-50 rounded-xl">
+                    <span class="block text-2xl">🔥</span>
+                    <span class="font-bold text-teal-800">Nivel Alto</span>
+                </div>
+            </div>
+            <button onclick="startQuiz()" class="bg-teal-600 hover:bg-teal-700 text-white text-xl font-bold py-4 px-12 rounded-2xl shadow-lg transform transition hover:scale-105">
+                Empezar Simulacro
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden">
+            <!-- Progress Bar -->
+            <div class="mb-6">
+                <div class="flex justify-between text-sm mb-2 text-teal-800 font-bold">
+                    <span id="progress-text">Pregunta 1 de 20</span>
+                    <span id="score-live">Puntos: 0</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progress-bar" class="bg-teal-500 h-3 rounded-full transition-all duration-500" style="width: 5%"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="glass-card p-6 md:p-10">
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold leading-tight mb-8"></h2>
+                
+                <div id="options-container" class="space-y-4">
+                    <!-- Options injected here -->
+                </div>
+
+                <!-- Feedback Area -->
+                <div id="feedback-area" class="hidden mt-8 p-6 rounded-xl border-l-4">
+                    <p id="feedback-title" class="font-bold text-lg mb-2"></p>
+                    <p id="feedback-text" class="text-sm leading-relaxed italic text-gray-700"></p>
+                    <button id="next-btn" class="mt-6 w-full bg-teal-800 text-white font-bold py-3 rounded-xl hover:bg-teal-900 transition">
+                        Siguiente Pregunta
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="hidden glass-card p-10 text-center">
+            <h2 class="text-3xl font-bold mb-2">Simulacro Finalizado</h2>
+            <div id="final-stats" class="my-8">
+                <div class="text-6xl font-black text-teal-600 mb-2" id="final-score">0%</div>
+                <p id="performance-msg" class="text-xl font-semibold mb-6"></p>
+                <div class="flex justify-center space-x-8 text-lg">
+                    <div>
+                        <p class="text-gray-500">Correctas</p>
+                        <p id="correct-count" class="font-bold text-green-600">0</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Incorrectas</p>
+                        <p id="incorrect-count" class="font-bold text-red-600">0</p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="location.reload()" class="bg-teal-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-700 transition">
+                Reiniciar Simulador
+            </button>
+        </div>
+    </main>
+
+    <footer class="mt-12 text-center text-gray-500 text-sm italic">
+        @victor 2026-SIMULADOR ACADÉMICO DE CONOCIMIENTOS GENERALES- HISTORIA<br>
+        "Con esfuerzo lograrás el éxito, no desmayes"
+    </footer>
+
+    <script>
+        // --- Data de Preguntas (Basadas en el documento) ---
+        // Nota: He generado opciones plausibles basadas en el sustento del documento original
+        const questions = [
+            {
+                q: "1. Durante el siglo XX, Bolivia vivió profundos cambios políticos, sociales y económicos. Uno de los procesos históricos que marcó este período fue la Revolución Nacional de 1952. ¿Cuál de las siguientes afirmaciones expresa de mejor manera uno de sus efectos estructurales en la sociedad boliviana?",
+                options: [
+                    "La centralización de la administración pública y la creación de una nueva moneda nacional.",
+                    "La nacionalización de las minas, la reforma agraria y la instauración del voto universal que redefinieron la organización económica y política.",
+                    "La consolidación de un sistema de libre mercado sin intervención estatal en la minería.",
+                    "El establecimiento de un gobierno federal con autonomía para los departamentos del oriente."
+                ],
+                correct: 1,
+                sustento: "La Revolución Nacional de 1952 constituyó un proceso de transformación estructural del Estado boliviano... Entre sus medidas más significativas se encuentran la nacionalización de las minas, la reforma agraria y la instauración del voto universal."
+            },
+            {
+                q: "2. En el contexto de la construcción de la ciudadanía en Bolivia durante el siglo XX, ¿cómo se comprende principalmente la ciudadanía?",
+                options: [
+                    "Únicamente como la posesión de un documento de identidad legal otorgado por el Estado.",
+                    "Como una práctica activa de ejercicio consciente de derechos y deberes, involucrándose en procesos democráticos y comunitarios.",
+                    "Como el derecho exclusivo de las élites alfabetizadas para participar en procesos electorales.",
+                    "Como la condición jurídica que se adquiere automáticamente al cumplir la mayoría de edad sin mayor responsabilidad social."
+                ],
+                correct: 1,
+                sustento: "La ciudadanía no se reduce a la pertenencia legal a un Estado, sino que implica el ejercicio activo y consciente de derechos y deberes en la vida pública... contribuyendo a la toma de decisiones colectivas."
+            },
+            {
+                q: "3. ¿Cuál de las siguientes características explica mejor el tipo de organización de la civilización de Tiwanaku que permitió su expansión regional?",
+                options: [
+                    "Un modelo de conquista puramente militar basado en el exterminio de pueblos vecinos.",
+                    "Un sistema de ciudades-estado independientes que competían por recursos marítimos.",
+                    "La articulación de autoridad política, control territorial y prácticas religiosas en un sistema integrado para la cohesión social.",
+                    "Una economía basada exclusivamente en el comercio de ultramar con culturas amazónicas."
+                ],
+                correct: 2,
+                sustento: "Tiwanaku articuló autoridad política, control territorial y prácticas religiosas en un sistema integrado, lo que favoreció la cohesión social, la redistribución de recursos y la expansión de su influencia."
+            },
+            {
+                q: "4. ¿Qué factor explica principalmente el rápido crecimiento y relevancia de la ciudad de Potosí durante el periodo colonial?",
+                options: [
+                    "Su ubicación estratégica como puerto principal del Pacífico.",
+                    "El desarrollo de una industria textil manufacturera competitiva con Europa.",
+                    "El descubrimiento de grandes yacimientos de plata en el Cerro Rico, integrándola a redes comerciales globales.",
+                    "La instauración de una corte real que atrajo a la nobleza española de forma permanente."
+                ],
+                correct: 2,
+                sustento: "El descubrimiento de los grandes yacimientos de plata en Potosí transformó de manera decisiva la economía del mundo colonial... convirtiéndola en uno de los principales centros productores a escala global."
+            },
+            {
+                q: "5. Desde la perspectiva de la historia boliviana, ¿a qué se orientan principalmente los derechos sociales?",
+                options: [
+                    "A garantizar la propiedad privada absoluta por encima del interés colectivo.",
+                    "A reducir desigualdades estructurales y asegurar condiciones mínimas de vida digna como educación, salud y trabajo.",
+                    "A sustituir completamente los derechos civiles y políticos en favor de una economía planificada.",
+                    "A otorgar beneficios exclusivos a los sectores que apoyan al gobierno de turno."
+                ],
+                correct: 1,
+                sustento: "Los derechos sociales están orientados a reducir desigualdades estructurales y asegurar condiciones básicas de vida digna... Su finalidad es promover igualdad de oportunidades y justicia social."
+            },
+            {
+                q: "6. ¿Por qué los hechos de 1809 en Chuquisaca son valorados como antecedentes fundamentales de la independencia?",
+                options: [
+                    "Porque marcaron la victoria militar definitiva sobre las tropas de la Corona española.",
+                    "Porque incorporaron progresivamente la noción de autogobierno cuestionando la legitimidad del poder colonial.",
+                    "Porque permitieron la firma inmediata de tratados comerciales con Inglaterra.",
+                    "Porque significaron la expulsión total de la Iglesia Católica de las instituciones públicas."
+                ],
+                correct: 1,
+                sustento: "Estos movimientos incorporaron la noción de autogobierno como alternativa al orden impuesto por la metrópoli... configurando un precedente político e ideológico vinculado a la soberanía."
+            },
+            {
+                q: "7. El rol activo del Estado en la relación Estado-sociedad se caracteriza principalmente por:",
+                options: [
+                    "Eliminar completamente el mercado para establecer un control total de la producción.",
+                    "Intervenir para regular la economía y atender demandas sociales, buscando corregir desequilibrios estructurales.",
+                    "Delegar todas las funciones sociales a empresas privadas y organizaciones internacionales.",
+                    "Priorizar únicamente el gasto militar por encima de los derechos ciudadanos básicos."
+                ],
+                correct: 1,
+                sustento: "Un Estado activo interviene para regular la economía y atender demandas sociales... Esta intervención busca garantizar derechos y corregir desequilibrios estructurales."
+            },
+            {
+                q: "8. ¿Cómo se caracterizó principalmente la fundación de la República respecto a las estructuras sociales coloniales?",
+                options: [
+                    "Por una ruptura total inmediata que integró a los pueblos indígenas al poder político.",
+                    "Por la instauración de una democracia participativa con sufragio universal inmediato.",
+                    "Por continuidades en las estructuras sociales excluyentes, configurándose inicialmente como un Estado oligárquico liderado por élites criollas.",
+                    "Por el retorno a la organización comunitaria prehispánica sin jerarquías."
+                ],
+                correct: 2,
+                sustento: "Aunque se proclamó la igualdad jurídica, en la práctica se mantuvieron estructuras sociales excluyentes heredadas de la colonia... La República se configuró inicialmente como un Estado oligárquico."
+            },
+            {
+                q: "9. La proclamación de la independencia de Bolivia en 1825 estuvo directamente vinculada a:",
+                options: [
+                    "Una intervención pacífica de las Naciones Unidas.",
+                    "Un liderazgo capaz de articular ideales independentistas con una estrategia militar eficaz y visión política de nuevo orden.",
+                    "Un acuerdo diplomático voluntario donde España cedió los territorios sin combate.",
+                    "La rebelión espontánea de las milicias locales sin coordinación externa alguna."
+                ],
+                correct: 1,
+                sustento: "La conducción militar y política que permitió la derrota definitiva del poder español... integró la movilización de fuerzas locales y la coordinación con proyectos emancipadores regionales."
+            },
+            {
+                q: "10. Una característica central de la economía republicana boliviana fue:",
+                options: [
+                    "La industrialización masiva de productos terminados para el mercado interno.",
+                    "La dependencia de la exportación de materias primas (minerales) hacia el mercado internacional.",
+                    "La eliminación total de la minería en favor de una agricultura orgánica extensiva.",
+                    "Un sistema de trueque nacional que aisló al país de las fluctuaciones externas."
+                ],
+                correct: 1,
+                sustento: "La economía republicana se basó principalmente en la exportación de materias primas... Este modelo generó dependencia económica y vulnerabilidad frente a las fluctuaciones externas."
+            },
+            {
+                q: "11. ¿Cuál fue el impacto estructural más significativo de la Guerra del Pacífico para Bolivia?",
+                options: [
+                    "La obtención de un nuevo puerto moderno en el Atlántico.",
+                    "Transformaciones profundas en la configuración territorial, condicionando su desarrollo y redefiniendo su posición geopolítica.",
+                    "La desaparición inmediata de la deuda externa nacional.",
+                    "Un aumento exponencial de la población en la región costera cedida."
+                ],
+                correct: 1,
+                sustento: "El conflicto generó transformaciones profundas y duraderas en la configuración territorial... condicionando las posibilidades de desarrollo a mediano y largo plazo."
+            },
+            {
+                q: "12. Desde una perspectiva histórica, ¿qué reflejan principalmente los conflictos internos de la etapa republicana?",
+                options: [
+                    "La armonía social absoluta entre todas las regiones del país.",
+                    "La dificultad para construir un proyecto nacional integrador y la falta de consenso sobre el modelo de Estado.",
+                    "La eficiencia total de las instituciones estatales para resolver disputas.",
+                    "El deseo unánime de retornar al sistema monárquico español."
+                ],
+                correct: 1,
+                sustento: "Los conflictos internos de la etapa republicana evidencian la dificultad para construir un proyecto nacional integrador... La falta de consenso sobre el modelo de Estado generó inestabilidad."
+            },
+            {
+                q: "13. La expansión europea hacia otros continentes durante la época moderna se explica principalmente por:",
+                options: [
+                    "Intereses puramente turísticos y exploratorios sin afán de lucro.",
+                    "El deseo altruista de compartir tecnología avanzada con el resto del mundo.",
+                    "Intereses económicos y políticos, como el control de rutas comerciales y el acceso a recursos estratégicos.",
+                    "Una orden unánime de los pueblos colonizados para ser integrados a Europa."
+                ],
+                correct: 2,
+                sustento: "La expansión europea estuvo motivada por intereses económicos y políticos, como el control de rutas comerciales y el acceso a recursos estratégicos."
+            },
+            {
+                q: "14. Una característica clave de la economía moderna temprana fue:",
+                options: [
+                    "El estancamiento total del comercio entre naciones.",
+                    "El crecimiento del comercio internacional y la acumulación de capital a través de mercados y bancos.",
+                    "La prohibición absoluta del uso de moneda y créditos.",
+                    "El retorno a una economía de subsistencia basada solo en la recolección."
+                ],
+                correct: 1,
+                sustento: "La economía de la época moderna se caracterizó por el crecimiento del comercio internacional y la acumulación de capital... favoreciendo nuevas dinámicas económicas."
+            },
+            {
+                q: "15. El Estado moderno se caracterizó principalmente por:",
+                options: [
+                    "La fragmentación total del poder en pequeños señores feudales.",
+                    "La centralización del poder en manos del monarca o gobierno central, con burocracias y ejércitos permanentes.",
+                    "La ausencia total de impuestos y fronteras territoriales.",
+                    "Un sistema de gobierno rotativo donde cada ciudadano era rey por un día."
+                ],
+                correct: 1,
+                sustento: "El Estado moderno se consolidó mediante la centralización del poder... Se desarrollaron burocracias, sistemas fiscales y ejércitos permanentes."
+            },
+            {
+                q: "16. ¿Qué hecho simboliza el inicio de la Edad Contemporánea y por qué?",
+                options: [
+                    "La invención de la rueda, por permitir el transporte masivo.",
+                    "La caída del Imperio Romano de Oriente.",
+                    "La Revolución Francesa, porque cuestionó el orden tradicional e introdujo la soberanía popular y derechos ciudadanos.",
+                    "El descubrimiento de América en 1492."
+                ],
+                correct: 2,
+                sustento: "La Revolución Francesa simboliza el inicio de la Edad Contemporánea porque cuestionó el orden político tradicional... Introdujo principios como igualdad jurídica y soberanía popular."
+            },
+            {
+                q: "17. Una consecuencia social central de la Revolución Industrial fue:",
+                options: [
+                    "La desaparición total de las ciudades y el retorno al campo.",
+                    "El surgimiento de la clase obrera industrial (proletariado) y el nacimiento de movimientos sindicales.",
+                    "La eliminación de la pobreza de forma instantánea en todo el mundo.",
+                    "El cese de todo tipo de conflicto laboral debido a la automatización."
+                ],
+                correct: 1,
+                sustento: "La Revolución Industrial dio origen a una nueva clase social: la clase obrera industrial... el surgimiento del proletariado fue una consecuencia clave."
+            },
+            {
+                q: "18. Las batallas independentistas en Bolivia fueron importantes porque:",
+                options: [
+                    "Representaron la expresión armada de un proyecto político orientado a la libertad y el autogobierno.",
+                    "Fueron simples deportes de competencia entre oficiales extranjeros.",
+                    "Lograron eliminar todas las desigualdades sociales en el mismo instante de la victoria.",
+                    "Fueron financiadas totalmente por la Corona española para castigar a los criollos."
+                ],
+                correct: 0,
+                sustento: "Las batallas independentistas representaron la expresión armada de un proyecto político que buscaba romper el dominio colonial... vinculadas a ideas de libertad."
+            },
+            {
+                q: "19. El significado principal del retorno a la democracia en 1982 fue:",
+                options: [
+                    "La solución inmediata y total de la crisis económica e hiperinflación.",
+                    "La recuperación del orden constitucional y la restitución de la institucionalidad tras décadas de autoritarismo.",
+                    "La prohibición definitiva de cualquier tipo de protesta social.",
+                    "El inicio de un nuevo periodo de gobiernos militares de facto por 20 años más."
+                ],
+                correct: 1,
+                sustento: "El retorno a la democracia en 1982 representó la recuperación del orden constitucional y la restitución de la institucionalidad democrática tras casi dos décadas de interrupciones."
+            },
+            {
+                q: "20. ¿Cuál fue el eje central de la Reforma Educativa de 1994 en Bolivia?",
+                options: [
+                    "La imposición de un solo idioma extranjero como obligatorio desplazando al castellano.",
+                    "El reconocimiento de la diversidad cultural y lingüística, estableciendo la educación intercultural y bilingüe.",
+                    "La privatización total de todas las escuelas y universidades públicas.",
+                    "La eliminación de los contenidos de historia para priorizar solo la matemática técnica."
+                ],
+                correct: 1,
+                sustento: "La reforma educativa de 1994 incorporó como eje central el reconocimiento de la diversidad cultural y lingüística... estableciendo la educación intracultural, intercultural y bilingüe."
+            }
+        ];
+
+        // --- Estado del App ---
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 30 * 60; // 30 mins
+        let timerInterval;
+
+        // --- Elementos DOM ---
+        const introScreen = document.getElementById('intro-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const scoreLive = document.getElementById('score-live');
+        const timerDisplay = document.getElementById('timer');
+
+        function startQuiz() {
+            introScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            startTimer();
+            showQuestion();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                }
+            }, 1000);
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            questionText.textContent = q.q;
+            optionsContainer.innerHTML = '';
+            feedbackArea.classList.add('hidden');
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full text-left p-4 rounded-xl bg-white shadow-sm font-medium hover:bg-gray-50 border border-gray-100 flex items-start gap-3";
+                btn.innerHTML = `
+                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold">${String.fromCharCode(65 + index)}</span>
+                    <span class="pt-1">${opt}</span>
+                `;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Update Progress
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `Pregunta ${currentQuestion + 1} de ${questions.length}`;
+        }
+
+        function checkAnswer(selectedIndex, btn) {
+            const q = questions[currentQuestion];
+            const buttons = optionsContainer.querySelectorAll('button');
+            
+            // Disable all
+            buttons.forEach(b => b.disabled = true);
+
+            if (selectedIndex === q.correct) {
+                btn.classList.add('correct');
+                score++;
+                feedbackTitle.textContent = "¡Correcto!";
+                feedbackTitle.className = "font-bold text-lg mb-2 text-green-700";
+                feedbackArea.classList.add('bg-green-50', 'border-green-400');
+                feedbackArea.classList.remove('bg-red-50', 'border-red-400');
+            } else {
+                btn.classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+                feedbackTitle.textContent = "Respuesta Incorrecta";
+                feedbackTitle.className = "font-bold text-lg mb-2 text-red-700";
+                feedbackArea.classList.add('bg-red-50', 'border-red-400');
+                feedbackArea.classList.remove('bg-green-50', 'border-green-400');
+            }
+
+            feedbackText.textContent = q.sustento;
+            feedbackArea.classList.remove('hidden');
+            scoreLive.textContent = `Puntos: ${score}`;
+            
+            nextBtn.onclick = () => {
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    showQuestion();
+                } else {
+                    finishQuiz();
+                }
+            };
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('final-score').textContent = `${percentage}%`;
+            document.getElementById('correct-count').textContent = score;
+            document.getElementById('incorrect-count').textContent = questions.length - score;
+
+            let msg = "";
+            let color = "";
+            if (percentage >= 85) {
+                msg = "¡Excelente Desempeño! (Nivel Alto)";
+                color = "text-green-600";
+            } else if (percentage >= 60) {
+                msg = "Buen trabajo, puedes mejorar (Nivel Medio)";
+                color = "text-yellow-600";
+            } else {
+                msg = "Sigue estudiando, no te rindas (Nivel Bajo)";
+                color = "text-red-600";
+            }
+            
+            const msgEl = document.getElementById('performance-msg');
+            msgEl.textContent = msg;
+            msgEl.className = `text-xl font-semibold mb-6 ${color}`;
+        }
+    </script>
+</body>
+</html>

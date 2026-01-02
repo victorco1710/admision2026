@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador: Economía Circular en Bolivia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #ffffff 100%);
+            min-height: 100vh;
+            color: #1a2a3a; /* Azul petróleo profundo */
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background-color: #f0fdfa;
+            border-color: #2dd4bf;
+        }
+        .correct {
+            background-color: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #166534 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header Fijo -->
+    <div class="max-w-4xl mx-auto flex justify-between items-center mb-6">
+        <a href="land_pag.html" class="bg-white px-4 py-2 rounded-full shadow-sm text-sm font-semibold text-teal-600 hover:bg-teal-50 border border-teal-100 transition-colors flex items-center gap-2">
+            <span>←</span> Volver
+        </a>
+        <div id="timer" class="text-xl font-bold text-teal-700 bg-white px-4 py-2 rounded-full shadow-inner border border-teal-50">
+            30:00
+        </div>
+    </div>
+
+    <!-- Contenedor Principal -->
+    <main class="max-w-4xl mx-auto glass-card rounded-3xl p-6 md:p-10">
+        
+        <!-- Pantalla de Inicio -->
+        <div id="start-screen" class="text-center py-10">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-teal-900 mb-4">Economía circular y gestión de residuos en Bolivia</h1>
+            <p class="text-gray-600 mb-8 max-w-2xl mx-auto">Bienvenido al simulador académico de educación superior. Esta prueba de comprensión lectora consta de 30 preguntas de alta dificultad basadas en el repositorio oficial.</p>
+            <button onclick="startQuiz()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 px-10 rounded-2xl shadow-lg transition-transform active:scale-95">
+                Comenzar Simulacro
+            </button>
+        </div>
+
+        <!-- Pantalla de Preguntas -->
+        <div id="quiz-screen" class="hidden">
+            <!-- Progreso -->
+            <div class="mb-8">
+                <div class="flex justify-between text-sm font-semibold mb-2">
+                    <span id="progress-text" class="text-teal-600">Pregunta 1 de 30</span>
+                    <span id="score-text" class="text-gray-500">Puntaje: 0</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                    <div id="progress-bar" class="bg-teal-500 h-full transition-all duration-500" style="width: 3.33%"></div>
+                </div>
+            </div>
+
+            <!-- Pregunta -->
+            <div id="question-container" class="space-y-6">
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold leading-tight">
+                    <!-- Texto de la pregunta -->
+                </h2>
+                
+                <div id="options-container" class="grid grid-cols-1 gap-3">
+                    <!-- Botones de opciones -->
+                </div>
+
+                <!-- Retroalimentación -->
+                <div id="feedback-container" class="hidden mt-6 p-5 rounded-2xl border-l-4">
+                    <p id="feedback-status" class="font-bold text-lg mb-1"></p>
+                    <p id="feedback-sustento" class="text-sm italic text-gray-700"></p>
+                    <button id="next-btn" onclick="nextQuestion()" class="mt-4 bg-gray-900 text-white px-6 py-2 rounded-xl font-semibold hover:bg-black transition-colors">
+                        Siguiente Pregunta
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla Final -->
+        <div id="result-screen" class="hidden text-center py-10">
+            <h2 class="text-4xl font-black text-gray-900 mb-2">¡Simulacro Finalizado!</h2>
+            <div id="final-stats" class="my-8 flex flex-col items-center">
+                <div class="text-6xl font-black text-teal-600 mb-2" id="final-percentage">0%</div>
+                <div class="text-2xl font-bold" id="performance-label">---</div>
+                <p class="mt-4 text-gray-600" id="final-score-detail"></p>
+            </div>
+            
+            <div class="bg-teal-50 p-6 rounded-2xl mb-8">
+                <p class="italic text-teal-800 font-medium">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+            </div>
+
+            <button onclick="location.reload()" class="bg-gray-900 text-white px-8 py-3 rounded-2xl font-bold hover:scale-105 transition-transform">
+                Reiniciar simulador
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center mt-10 text-gray-400 text-sm">
+        <p>@victor 2026 - SIMULADOR ACADÉMICO DE COMPRENSIÓN LECTORA</p>
+    </footer>
+
+    <script>
+        // Datos de las 30 preguntas basados en el PDF
+        const questions = [
+            {
+                q: "¿Cómo define el texto a los instrumentos financieros recomendados para estimular la economía circular en Bolivia?",
+                options: [
+                    "Subsidios gubernamentales para la exportación de materia prima reciclada.",
+                    "Fondos de garantía, líneas de crédito verde y esquemas de pago por servicios ambientales.",
+                    "Incentivos fiscales y exoneración de impuestos para grandes industrias.",
+                    "Micro bonos comunitarios gestionados exclusivamente por ONG locales."
+                ],
+                correct: 1,
+                sustento: "El artículo menciona literalmente fondos de garantía, líneas de crédito verde y esquemas de pago por servicios ambientales como medios para reducir el riesgo de inversión."
+            },
+            {
+                q: "¿Cómo define la economía circular y qué consecuencias sociales se asocian a su adopción en Bolivia?",
+                options: [
+                    "Un modelo lineal de extracción que genera empleo masivo en minería.",
+                    "Un paradigma que cierra ciclos de materiales y minimiza desechos, generando oportunidades para micro empresas y jóvenes.",
+                    "Una normativa estricta que sanciona el consumo irresponsable de plásticos en áreas rurales.",
+                    "Un sistema de exportación de residuos orgánicos que mejora la balanza comercial del país."
+                ],
+                correct: 1,
+                sustento: "Se define como un paradigma que cierra ciclos y menciona la mejora en la calidad de vida y oportunidades para emprendedores."
+            },
+            {
+                q: "¿Qué metodología de reciclaje de plásticos se describe como la alternativa más viable a nivel local en Bolivia?",
+                options: [
+                    "Reciclación química de alta densidad.",
+                    "Valorización energética mediante incineración controlada.",
+                    "Reciclación mecánica (trituración, lavado y extrusión).",
+                    "Digestión anaeróbica de polímeros sintéticos."
+                ],
+                correct: 2,
+                sustento: "La reciclación mecánica es la más viable localmente por requerir inversiones moderadas y adaptarse a pequeñas empresas."
+            },
+            {
+                q: "¿Cuál es la implicación económica directa que se menciona respecto a la empresa ReciclArte en La Paz?",
+                options: [
+                    "Generó una reducción de costos operativos del 12%.",
+                    "Obtuvo un beneficio neto de 15,000 USD mediante la exportación de PET.",
+                    "Generó ingresos de 22,000 USD en 2022 procesando PET.",
+                    "Aumentó su producción en un 8% anual gracias a créditos verdes."
+                ],
+                correct: 2,
+                sustento: "En el apartado de incentivos económicos se indica explícitamente que generó ingresos de 22,000 USD en 2022."
+            },
+            {
+                q: "El proyecto piloto de digestores anaeróbicos en Cochabamba generó, por cada kilogramo de residuos orgánicos:",
+                options: [
+                    "0.35 m³ de metano.",
+                    "0.45 m³ de metano.",
+                    "0.55 m³ de metano.",
+                    "0.45 m³ de metano por tonelada."
+                ],
+                correct: 1,
+                sustento: "El artículo indica explícitamente 0.45 m³ de metano por kilogramo de residuos orgánicos."
+            },
+            {
+                q: "¿Cuál es la característica que diferencia la tasa de reciclaje de PET en Santa Cruz de la tasa de recolección formal en Bolivia?",
+                options: [
+                    "La tasa de PET (12%) es igual a la recolección nacional (12%).",
+                    "La tasa de reciclaje de PET (8%) es inferior a la tasa de recolección formal nacional (12%).",
+                    "La tasa de PET (70%) supera ampliamente la recolección nacional (12%).",
+                    "No existe diferencia, ambas se sitúan en el 15% según el INE."
+                ],
+                correct: 1,
+                sustento: "Santa Cruz tiene 8% de reciclaje de PET (UMSA) frente al 12% de recolección formal nacional (INE)."
+            },
+            {
+                q: "¿Cuál es el objetivo principal que persiguen los micro bonos ofrecidos por ONG como EcoBol en los Yungas?",
+                options: [
+                    "Subvencionar el transporte de residuos hacia vertederos municipales.",
+                    "Ofrecer un estímulo económico que motive a la población a separar materiales.",
+                    "Eliminar la necesidad de participación estatal en la gestión de residuos.",
+                    "Financiar la construcción de plantas industriales de papel."
+                ],
+                correct: 1,
+                sustento: "Se usan como incentivo para aumentar la tasa de separación (del 3% al 18% en dos años)."
+            },
+            {
+                q: "Si el Estado fortalece la Ley 775 creando fondos de garantía, ¿qué consecuencia se deduce?",
+                options: [
+                    "Se eliminaría la necesidad de recolectores informales.",
+                    "Aumentaría la operatividad formal de micro empresas, elevando la tasa de reciclaje R.",
+                    "Se reduciría el consumo de plásticos en un 70% inmediatamente.",
+                    "Los municipios dejarían de cobrar por el servicio de basura."
+                ],
+                correct: 1,
+                sustento: "Los fondos permitirían a más emprendedores operar formalmente, incrementando la recolección y el indicador R."
+            },
+            {
+                q: "¿Qué efecto indirecto generaría la expansión de digestores anaeróbicos en zonas rurales?",
+                options: [
+                    "Aumento de la contaminación hídrica por residuos orgánicos.",
+                    "Reducción de residuos en vertederos y mejora de la eficiencia global R.",
+                    "Dependencia tecnológica de países vecinos como Chile.",
+                    "Incremento en el costo de energía para las familias rurales."
+                ],
+                correct: 1,
+                sustento: "Al transformar residuos en energía, se reduce lo que llega a vertederos, impactando positivamente en el cálculo de R."
+            },
+            {
+                q: "¿Qué conclusión general puede inferirse sobre la recolección formal y la eficiencia de reciclaje (R)?",
+                options: [
+                    "Son variables independientes que no se afectan entre sí.",
+                    "Una mayor recolección formal facilita la segregación y disponibilidad de residuos, aumentando R.",
+                    "La recolección formal disminuye R debido a la burocracia estatal.",
+                    "Solo el reciclaje informal puede aumentar el valor de R en Bolivia."
+                ],
+                correct: 1,
+                sustento: "La cobertura formal asegura volumen segregado y de calidad para procesos de valorización."
+            },
+            {
+                q: "¿Qué efecto tendría en la eficiencia R la ampliación de programas de educación ambiental de ONG?",
+                options: [
+                    "Ninguno, la educación no afecta los procesos fisicoquímicos.",
+                    "Mejoraría la segregación, reduciendo la contaminación de flujos y aumentando R.",
+                    "Reduciría R al aumentar el volumen total generado (Mtotal).",
+                    "Generaría una caída en la masa recolectada efectivamente (Mrec)."
+                ],
+                correct: 1,
+                sustento: "La educación mejora la segregación en origen, permitiendo que más material sea realmente apto para reciclar (Mrec)."
+            },
+            {
+                q: "¿Cuál es la idea central respecto al papel de la economía circular en Bolivia?",
+                options: [
+                    "Es una solución puramente tecnológica que no requiere cambios sociales.",
+                    "Depende de la integración de políticas públicas, innovación tecnológica y participación comunitaria.",
+                    "Su éxito se basa exclusivamente en sanciones punitivas a la industria.",
+                    "Es un modelo inviable para países en desarrollo debido a sus altos costos."
+                ],
+                correct: 1,
+                sustento: "El autor enfatiza que la transición depende de la tríada: políticas, tecnología y sociedad."
+            },
+            {
+                q: "¿Qué diferencia esencial hay entre la contribución del Estado y la de las ONG según el texto?",
+                options: [
+                    "El Estado educa y las ONG crean leyes.",
+                    "El Estado provee infraestructura normativa y las ONG actúan mediante educación y sensibilización directa.",
+                    "No hay diferencia, ambas instituciones compiten por los mismos fondos.",
+                    "Las ONG manejan la tecnología mecánica y el Estado la biotecnología."
+                ],
+                correct: 1,
+                sustento: "La Ley 775 es el marco estatal, mientras que EcoBol (ONG) logró cambios de comportamiento en la población."
+            },
+            {
+                q: "Para que Bolivia logre una transición efectiva a la economía circular es indispensable:",
+                options: [
+                    "Eliminar la Ley 775 por su lentitud.",
+                    "La combinación de políticas claras, tecnología apropiada y participación comunitaria.",
+                    "Focalizarse únicamente en el reciclaje de vidrio en los valles.",
+                    "Privatizar todos los servicios de recolección municipal."
+                ],
+                correct: 1,
+                sustento: "Es la conclusión explícita del autor sobre los ejes para elevar significativamente la eficiencia R."
+            },
+            {
+                q: "Al comparar la reciclación mecánica de PET y digestores anaeróbicos:",
+                options: [
+                    "El PET requiere más inversión que la biotecnología rural.",
+                    "La mecánica requiere inversión moderada (pymes) y los digestores son idóneos para zonas rurales aisladas.",
+                    "Ambos procesos son exclusivos de la ciudad de La Paz.",
+                    "La mecánica es para residuos orgánicos y los digestores para plásticos."
+                ],
+                correct: 1,
+                sustento: "El artículo asocia la inversión moderada a la mecánica y el uso energético (biogás) a comunidades rurales."
+            },
+            {
+                q: "¿Cuál es la tendencia dominante en la gestión de residuos en Bolivia?",
+                options: [
+                    "La transición depende de la sinergia entre política, tecnología y sociedad potenciada por indicadores.",
+                    "El dominio absoluto de la gestión informal sin posibilidad de mejora.",
+                    "La exportación de toda la basura plástica a países industrializados.",
+                    "La quema sistemática de residuos orgánicos en el Altiplano."
+                ],
+                correct: 0,
+                sustento: "El texto enfatiza la integración sistémica medida por indicadores de desempeño como R."
+            },
+            {
+                q: "Si la segregación de residuos orgánicos aumenta en comunidades rurales:",
+                options: [
+                    "Disminuiría la producción de metano por saturación.",
+                    "Se generaría más metano, permitiendo abastecer a más hogares energéticamente.",
+                    "El costo de procesamiento mecánico de plásticos subiría.",
+                    "La huella de carbono aumentaría por exceso de biogás."
+                ],
+                correct: 1,
+                sustento: "Más materia prima en buen estado significa mayor producción de energía linealmente (0.45 m³/kg)."
+            },
+            {
+                q: "¿Cuál es el mensaje principal implícito sobre las soluciones para la gestión en Bolivia?",
+                options: [
+                    "La solución es solo financiera.",
+                    "Se requiere una visión integradora: políticas, tecnología y participación social.",
+                    "Debemos volver al modelo lineal de los años 90.",
+                    "La única salida es reducir la población urbana."
+                ],
+                correct: 1,
+                sustento: "Esa visión holística es el eje central del análisis y las conclusiones del autor."
+            },
+            {
+                q: "¿Qué efecto tendría la ampliación de programas de educación ambiental en comunidades rurales?",
+                options: [
+                    "Confusión social sobre el valor de los residuos.",
+                    "Mayor aptitud de materiales para reciclaje mecánico y valorización energética, elevando R.",
+                    "Reducción de la eficiencia del reciclaje por exceso de segregación.",
+                    "Aumento de las sanciones estatales a las familias."
+                ],
+                correct: 1,
+                sustento: "Al separar mejor, los residuos no se contaminan y pueden ser procesados eficientemente."
+            },
+            {
+                q: "¿Cuál comparación entre propuestas refleja mejor su potencial efecto inmediato sobre R?",
+                options: [
+                    "Las sanciones legales son más rápidas que los créditos.",
+                    "Los incentivos financieros (créditos/fondos) permiten acción inmediata sobre R frente a leyes que actúan a largo plazo.",
+                    "La educación ambiental es inmediata, los créditos tardan décadas.",
+                    "Ninguna propuesta afecta el indicador R de forma directa."
+                ],
+                correct: 1,
+                sustento: "Los fondos permiten comprar equipos hoy, mientras que la ley requiere vigilancia y cumplimiento progresivo."
+            },
+            {
+                q: "Para micro empresas rurales, ¿por qué es más relevante el biogás que los datos de PET de Santa Cruz?",
+                options: [
+                    "Porque el PET no existe en el área rural.",
+                    "Porque el biogás ofrece fuente de energía local y desarrollo en zonas con déficit eléctrico.",
+                    "Porque los datos de Santa Cruz son falsos según el INE.",
+                    "Porque el biogás es más caro y genera más prestigio."
+                ],
+                correct: 1,
+                sustento: "El biogás resuelve una carencia estructural (energía) que permite emprender en el campo."
+            },
+            {
+                q: "¿Qué limitación NO aborda el autor al proponer modelos de negocio?",
+                options: [
+                    "La falta de tecnología.",
+                    "La dimensión de género y desigualdad en el acceso a recursos financieros.",
+                    "La falta de interés de los jóvenes.",
+                    "La baja generación de residuos en Bolivia."
+                ],
+                correct: 1,
+                sustento: "El texto nunca menciona cómo la desigualdad de género impacta en el acceso a créditos verdes."
+            },
+            {
+                q: "¿Por qué es relevante el indicador R para diseñar políticas de incentivos?",
+                options: [
+                    "Para cobrar más impuestos a las pymes.",
+                    "Permite premiar mediante bonos a quienes logren mayor efectividad en el cierre del ciclo.",
+                    "Es un dato decorativo solicitado por la UNEP.",
+                    "Sirve para reducir la cantidad de recolectores formales."
+                ],
+                correct: 1,
+                sustento: "El autor sugiere usar métricas obligatorias para evaluar eficacia y asignar fondos basados en desempeño."
+            },
+            {
+                q: "¿Cuál posible sesgo ambiental no está suficientemente abordado?",
+                options: [
+                    "La toxicidad del biogás.",
+                    "Las emisiones de CO2 generadas durante el transporte y procesamiento de materiales reciclados.",
+                    "El olor de los vertederos municipales.",
+                    "La contaminación por vidrio en los ríos."
+                ],
+                correct: 1,
+                sustento: "El autor celebra el ahorro de CO2 de ReciclArte pero omite las emisiones operativas de la cadena de reciclaje."
+            },
+            {
+                q: "El argumento del autor sobre la validez de establecer indicadores de desempeño (R) es:",
+                options: [
+                    "Inconsistente y sin datos.",
+                    "Válido, pues aporta evidencia empírica (ReciclArte) que demuestra mejoras tangibles.",
+                    "Basado solo en opiniones personales sin sustento científico.",
+                    "Inaplicable a la realidad boliviana por falta de ingenieros."
+                ],
+                correct: 1,
+                sustento: "Usa casos reales como ReciclArte (22,000 USD y ahorro de CO2) para validar el uso de métricas."
+            },
+            {
+                q: "¿Por qué es relevante la incorporación de R para municipios de Bolivia?",
+                options: [
+                    "Para evaluar programas, orientar asignación de fondos y diseñar incentivos financieros.",
+                    "Para aumentar las multas a los ciudadanos de forma aleatoria.",
+                    "Para demostrar que no se necesita inversión tecnológica.",
+                    "Para descentralizar la gestión hacia organismos internacionales."
+                ],
+                correct: 0,
+                sustento: "Se menciona explícitamente como métrica obligatoria para evaluar eficacia y orientar microcréditos."
+            },
+            {
+                q: "¿Qué sesgo limita la representatividad de los resultados presentados?",
+                options: [
+                    "Sesgo de género.",
+                    "Sesgo de representatividad geográfica (solo Santa Cruz, Cochabamba y La Paz).",
+                    "Sesgo político de extrema derecha.",
+                    "Sesgo tecnológico por usar solo máquinas antiguas."
+                ],
+                correct: 1,
+                sustento: "Se enfoca en ejemplos puntuales, impidiendo extrapolar los hallazgos a toda la diversidad nacional."
+            },
+            {
+                q: "¿Cuál es la implicación ética más relevante al promover incentivos solo para micro empresas?",
+                options: [
+                    "La injusticia distributiva si se excluye a los recolectores informales históricos.",
+                    "El beneficio excesivo a las empresas chilenas.",
+                    "La falta de ética al usar plásticos de un solo uso.",
+                    "No hay implicaciones éticas, es solo un tema de ingeniería."
+                ],
+                correct: 0,
+                sustento: "La exclusión de informales plantea un dilema de justicia distributiva e inequidad."
+            },
+            {
+                q: "Sobre el papel de las ONG, una evaluación crítica adecuada es:",
+                options: [
+                    "Sus datos son definitivos para todo el país.",
+                    "La evidencia es limitada (caso aislado EcoBol) para sustentar afirmaciones nacionales generales.",
+                    "Las ONG no tienen ninguna relevancia en el proceso.",
+                    "El éxito de EcoBol es atribuible al Estado boliviano."
+                ],
+                correct: 1,
+                sustento: "Un solo caso regional no permite asegurar que el impacto sea replicable a nivel nacional."
+            },
+            {
+                q: "El proyecto piloto en Cochabamba demostró una generación de metano de:",
+                options: [
+                    "0.45 m³ por gramo.",
+                    "0.45 m³ por kilogramo de residuos orgánicos.",
+                    "4.5 m³ por kilogramo.",
+                    "0.45 litros por tonelada."
+                ],
+                correct: 1,
+                sustento: "Es el dato numérico exacto presente en el desarrollo técnico del artículo."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 30 * 60;
+        let timerId;
+
+        function startQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            loadQuestion();
+            startTimer();
+        }
+
+        function startTimer() {
+            timerId = setInterval(() => {
+                timeLeft--;
+                let minutes = Math.floor(timeLeft / 60);
+                let seconds = timeLeft % 60;
+                document.getElementById('timer').innerText = 
+                    `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                if (timeLeft <= 0) {
+                    endQuiz();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('progress-text').innerText = `Pregunta ${currentQuestion + 1} de 30`;
+            document.getElementById('progress-bar').style.width = `${((currentQuestion + 1) / 30) * 100}%`;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn text-left p-4 rounded-xl border-2 border-gray-100 bg-white font-medium hover:border-teal-400";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('feedback-container').classList.add('hidden');
+        }
+
+        function checkAnswer(selected) {
+            const q = questions[currentQuestion];
+            const buttons = document.querySelectorAll('.option-btn');
+            
+            // Deshabilitar botones
+            buttons.forEach(btn => btn.disabled = true);
+
+            const feedbackContainer = document.getElementById('feedback-container');
+            const feedbackStatus = document.getElementById('feedback-status');
+            const feedbackSustento = document.getElementById('feedback-sustento');
+
+            if (selected === q.correct) {
+                buttons[selected].classList.add('correct');
+                score++;
+                feedbackStatus.innerText = "¡Correcto!";
+                feedbackStatus.className = "font-bold text-lg mb-1 text-green-600";
+                feedbackContainer.classList.add('bg-green-50', 'border-green-400');
+                feedbackContainer.classList.remove('bg-red-50', 'border-red-400');
+            } else {
+                buttons[selected].classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+                feedbackStatus.innerText = "Incorrecto";
+                feedbackStatus.className = "font-bold text-lg mb-1 text-red-600";
+                feedbackContainer.classList.add('bg-red-50', 'border-red-400');
+                feedbackContainer.classList.remove('bg-green-50', 'border-green-400');
+            }
+
+            feedbackSustento.innerText = q.sustento;
+            feedbackContainer.classList.remove('hidden');
+            document.getElementById('score-text').innerText = `Puntaje: ${score}`;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function endQuiz() {
+            clearInterval(timerId);
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const percentage = Math.round((score / 30) * 100);
+            document.getElementById('final-percentage').innerText = percentage + "%";
+            document.getElementById('final-score-detail').innerText = `Lograste ${score} de 30 respuestas correctas.`;
+
+            let label = "";
+            let color = "";
+            if (percentage >= 80) {
+                label = "Desempeño Alto";
+                color = "text-green-600";
+            } else if (percentage >= 51) {
+                label = "Desempeño Medio";
+                color = "text-yellow-600";
+            } else {
+                label = "Desempeño Bajo";
+                color = "text-red-600";
+            }
+
+            const labelElem = document.getElementById('performance-label');
+            labelElem.innerText = label;
+            labelElem.className = `text-2xl font-bold ${color}`;
+        }
+    </script>
+</body>
+</html>

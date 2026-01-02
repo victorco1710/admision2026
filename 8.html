@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Comprensión Lectora - Resistencia Antibiótica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f7f4 0%, #ffffff 100%);
+            min-height: 100vh;
+            color: #1a3a4a; /* Azul petróleo profundo */
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #f0fdfa;
+            border-color: #2dd4bf;
+            transform: translateY(-1px);
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+            color: #065f46 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .progress-bar {
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Ocultar scrollbar en Chrome, Safari y Opera */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <a href="land_pag.html" class="px-6 py-2 bg-white text-teal-600 font-semibold rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-2 border border-teal-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                Volver
+            </a>
+            <h1 class="text-xl md:text-2xl font-bold text-center text-teal-900">
+                Resistencia a los antibióticos: desafío actual y soluciones emergentes en Bolivia
+            </h1>
+            <div id="timer" class="text-lg font-mono font-bold bg-teal-100 px-4 py-2 rounded-lg border border-teal-200 text-teal-800">
+                30:00
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="mb-8">
+            <div class="flex justify-between text-sm font-semibold mb-2 text-teal-700">
+                <span id="question-counter">Pregunta 1 de 30</span>
+                <span id="score-live">Puntaje: 0</span>
+            </div>
+            <div class="w-full bg-teal-100 rounded-full h-3">
+                <div id="progress" class="bg-teal-500 h-3 rounded-full progress-bar" style="width: 3.33%"></div>
+            </div>
+        </div>
+
+        <!-- Main Quiz Container -->
+        <div id="quiz-container" class="glass-card rounded-3xl p-6 md:p-10 min-h-[400px]">
+            <div id="question-content">
+                <h2 id="question-text" class="text-xl md:text-2xl font-bold mb-8 leading-tight">
+                    Cargando pregunta...
+                </h2>
+                <div id="options-container" class="grid gap-4">
+                    <!-- Opciones se insertan aquí -->
+                </div>
+            </div>
+
+            <!-- Feedback Modal (Inline) -->
+            <div id="feedback" class="hidden mt-8 p-6 rounded-2xl border-l-8 transition-all">
+                <p id="feedback-title" class="text-lg font-bold mb-2"></p>
+                <p id="feedback-text" class="text-sm md:text-base italic mb-4 text-gray-700"></p>
+                <button id="next-btn" class="w-full md:w-auto px-10 py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 transition-colors shadow-lg">
+                    Siguiente Pregunta
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Screen (Hidden) -->
+        <div id="result-screen" class="hidden glass-card rounded-3xl p-10 text-center animate-fade-in">
+            <h2 class="text-3xl font-bold mb-4 text-teal-900">¡Simulacro Completado!</h2>
+            <div class="text-6xl font-bold text-teal-600 mb-6" id="final-score">0%</div>
+            <p class="text-xl mb-2 font-semibold" id="performance-msg"></p>
+            <p class="text-gray-600 mb-8" id="detailed-stats"></p>
+            
+            <button onclick="location.reload()" class="px-10 py-4 bg-teal-600 text-white font-bold rounded-2xl hover:bg-teal-700 transition-transform hover:scale-105 shadow-xl">
+                Reiniciar simulador
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-teal-800/60 pb-8">
+            <p class="font-medium text-sm">@victor 2026-SIMULADOR ACADÉMICO DE COMPRENSIÓN LECTORA</p>
+            <p class="italic mt-1 font-semibold text-teal-700 text-base">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+        </footer>
+    </div>
+
+    <script>
+        // Banco de datos extraído del PDF
+        const questions = [
+            {
+                q: "¿Cuáles son las cuatro áreas de acción emergentes que se proponen para enfrentar la resistencia a los antibióticos en Bolivia?",
+                options: [
+                    "Fortalecimiento de la política sanitaria, programas de educación comunitaria, innovación biotecnológica y enfoque One Health.",
+                    "Distribución gratuita de antibióticos, mejora de infraestructura, aumento de médicos y digitalización de recetas.",
+                    "Prohibición total de fármacos, cierre de fronteras agrícolas, vacunación masiva y purificación de aguas.",
+                    "Investigación genética privada, exportación de cepas, control de precios y convenios internacionales."
+                ],
+                correct: 0,
+                sustento: "En la sección 'Soluciones emergentes y perspectivas de futuro' del artículo se listan exactamente esas cuatro áreas: (1) Fortalecimiento de la política sanitaria, (2) Programas de educación comunitaria, (3) Innovación biotecnológica y (4) Enfoque One Health."
+            },
+            {
+                q: "¿Cuál es el primer paso descrito en la iniciativa ambiental de One Health para controlar la resistencia a los antibióticos en Bolivia?",
+                options: [
+                    "La limpieza total del Río Pilcomayo.",
+                    "Proyectos de vigilancia de resistencia en fuentes de agua y en granjas avícolas.",
+                    "La prohibición de la ganadería intensiva.",
+                    "El tratamiento químico de las aguas servidas urbanas."
+                ],
+                correct: 1,
+                sustento: "En el apartado 'Enfoque One Health (Una Salud)' se indica que el Ministerio de Medio Ambiente, junto con el de Salud, 'ha lanzado proyectos de vigilancia de resistencia en fuentes de agua y en granjas avícolas' antes de cualquier otro accionar."
+            },
+            {
+                q: "¿Cuál es el orden cronológico correcto de las acciones realizadas para enfrentar la resistencia en Bolivia?",
+                options: [
+                    "PCR rápidos, Ley de 2022, Campañas de ONG, Terapia con fagos.",
+                    "Ley de 2022, Campañas de ONG, Diagnósticos PCR, Ensayos de terapia con fagos.",
+                    "Terapia con fagos, Ley de 2022, Diagnósticos PCR, Campañas de ONG.",
+                    "Campañas de ONG, Terapia con fagos, Ley de 2022, Diagnósticos PCR."
+                ],
+                correct: 1,
+                sustento: "La secuencia se describe en el artículo: primero, en 2022, el Gobierno aprueba la Ley de Uso Responsable. Luego, las ONG implementan campañas educativas. Posteriormente, el Hospital Universitario de La Paz incorpora diagnósticos PCR. Finalmente, el INS lleva a cabo ensayos de terapia con fagos."
+            },
+            {
+                q: "¿Cuál fue la característica principal de los antibióticos desde su introducción en la década de 1940?",
+                options: [
+                    "Eliminación total de las bacterias del planeta.",
+                    "Reducción drástica de la mortalidad infantil y prolongación de la esperanza de vida.",
+                    "Costo elevado inaccesible para la población general.",
+                    "Producción exclusiva mediante ingeniería genética avanzada."
+                ],
+                correct: 1,
+                sustento: "En la Introducción del artículo se afirma que, desde la década de 1940, los antibióticos redujeron drásticamente la mortalidad infantil y prolongaron la esperanza de vida en todo el mundo."
+            },
+            {
+                q: "¿Qué medidas forman parte de la Ley de Uso Responsable de Antibióticos de 2022?",
+                options: [
+                    "Venta libre para enfermedades respiratorias y fomento del uso preventivo.",
+                    "Obligación de receta médica, límite de uso en agropecuaria y creación de un registro nacional de resistencia.",
+                    "Subsidio estatal a farmacias y capacitación en medicina tradicional únicamente.",
+                    "Eliminación de laboratorios privados y control militar de granjas avícolas."
+                ],
+                correct: 1,
+                sustento: "El artículo indica que la Ley de Uso Responsable de Antibióticos 'obliga a los farmacéuticos a exigir receta médica... limita su uso en la agropecuaria... y establece la creación de un registro nacional de resistencia bacteriana'."
+            },
+            {
+                q: "El artículo señala que el 28% de los ingresos hospitalarios por infecciones respiratorias agudas están asociados a bacterias resistentes. ¿A qué se refiere este dato?",
+                options: [
+                    "Al porcentaje de médicos que no saben recetar antibióticos.",
+                    "A la proporción de internaciones por infecciones respiratorias agudas vinculadas a bacterias resistentes a al menos un antibiótico de primera línea.",
+                    "Al costo total del tratamiento frente a los ingresos hospitalarios.",
+                    "Al tiempo de espera para un diagnóstico PCR en Bolivia."
+                ],
+                correct: 1,
+                sustento: "En la sección 'Impacto epidemiológico en Bolivia' el artículo indica que 'aproximadamente 28% de los ingresos hospitalarios por infecciones respiratorias agudas están asociados a bacterias resistentes a al menos un antibiótico de primera línea'."
+            },
+            {
+                q: "Según el texto, la resistencia a los antibióticos se define como:",
+                options: [
+                    "La incapacidad del cuerpo humano de absorber el medicamento.",
+                    "Cuando una bacteria adquiere la habilidad de sobrevivir a concentraciones de antibiótico que antes la mataban.",
+                    "El vencimiento de los fármacos en los depósitos farmacéuticos.",
+                    "La alergia que desarrollan los pacientes a la penicilina."
+                ],
+                correct: 1,
+                sustento: "El artículo define explícitamente la resistencia con la frase: 'En términos sencillos, la resistencia surge cuando una bacteria adquiere la habilidad de sobrevivir a concentraciones de antibiótico que antes la mataban'."
+            },
+            {
+                q: "¿Cuál fue el objetivo principal de la implementación de la Ley de 2022?",
+                options: [
+                    "Promover la industria farmacéutica local.",
+                    "Controlar la resistencia mediante la regulación de la dispensación y el uso agropecuario.",
+                    "Reducir el costo de importación de medicamentos.",
+                    "Incentivar la automedicación en áreas rurales."
+                ],
+                correct: 1,
+                sustento: "El enunciado muestra que la intención principal es controlar la resistencia al obligar la receta médica y limitar el uso agropecuario, no estimular ventas o importaciones."
+            },
+            {
+                q: "¿Qué característica comparten los diagnósticos PCR rápidos y la terapia con bacteriófagos?",
+                options: [
+                    "Ambos son medidas normativas obligatorias por ley.",
+                    "Ambos favorecen tratamientos más dirigidos y específicos, reduciendo el uso de amplio espectro.",
+                    "Ambos dependen de la modificación genética de las bacterias del paciente.",
+                    "Ambos aumentan significativamente los efectos colaterales en el sistema digestivo."
+                ],
+                correct: 1,
+                sustento: "Ambas tecnologías comparten la característica de permitir tratamientos más focalizados/específicos, disminuyendo la necesidad de usar antibióticos de amplio espectro."
+            },
+            {
+                q: "¿Con qué finalidad se aprobó la Ley de Uso Responsable de Antibióticos?",
+                options: [
+                    "Aumentar la burocracia en el Ministerio de Salud.",
+                    "Frenar la automedicación y el uso indiscriminado en la ganadería.",
+                    "Eliminar el uso de vacunas en pollos y bovinos.",
+                    "Sustituir los antibióticos por remedios naturales obligatoriamente."
+                ],
+                correct: 1,
+                sustento: "Estos elementos responden al objetivo de frenar la automedicación y el uso indiscriminado en la ganadería, factores de riesgo descritos en los párrafos anteriores."
+            },
+            {
+                q: "Se infiere que la expansión nacional de la tecnología PCR rápida tendría el efecto de:",
+                options: [
+                    "Aumentar la resistencia bacteriana por mayor diagnóstico.",
+                    "Disminuir la presión de selección de cepas resistentes al usar antibióticos de forma más dirigida.",
+                    "Eliminar la necesidad de médicos en los hospitales.",
+                    "Hacer que las bacterias sean sensibles a cualquier sustancia."
+                ],
+                correct: 1,
+                sustento: "El texto indica que redujo la prescripción empírica en un 40%, lo que implica que se está usando antibióticos de forma más dirigida y, por tanto, disminuye la presión de selección."
+            },
+            {
+                q: "¿Qué consecuencia se deduce de la introducción masiva de antibióticos desde 1940 en la situación actual de Bolivia?",
+                options: [
+                    "La desaparición de las infecciones respiratorias.",
+                    "La creación de una presión selectiva histórica que explica la alta prevalencia de resistencia actual.",
+                    "Que Bolivia es inmune a las bacterias modernas.",
+                    "La reducción de la esperanza de vida por toxicidad."
+                ],
+                correct: 1,
+                sustento: "Se infiere que la combinación de la introducción histórica y el uso extensivo creó la presión selectiva que explica la alta prevalencia de resistencia actual citada en el 28% de ingresos."
+            },
+            {
+                q: "¿Qué conclusión lógica se extrae sobre el enfoque más prometedor para Bolivia?",
+                options: [
+                    "Solo la ley es suficiente para ganar la batalla.",
+                    "Solo una combinación de regulación, educación comunitaria y tecnología ofrece la mayor probabilidad de éxito.",
+                    "La tecnología es el único factor determinante.",
+                    "Deben abandonarse los antibióticos y usar solo terapia con fagos."
+                ],
+                correct: 1,
+                sustento: "La conclusión lógica es que solo una combinación de estas intervenciones (política, comportamiento y tecnología) ofrece la mayor probabilidad de éxito, ya que cada una aborda un factor distinto."
+            },
+            {
+                q: "¿Cómo se complementan las contribuciones del Gobierno y las ONG?",
+                options: [
+                    "El Gobierno educa y las ONG crean leyes.",
+                    "El Gobierno establece la base normativa/vigilancia y las ONG se enfocan en la educación comunitaria y cambio de hábitos.",
+                    "Ambas compiten por el mismo presupuesto sin coordinación.",
+                    "Las ONG reemplazan las funciones de los hospitales públicos."
+                ],
+                correct: 1,
+                sustento: "Estas dos acciones: regulación/vigilancia (Gobierno) y educación comunitaria (ONG) se describen como complementarias en el texto."
+            },
+            {
+                q: "Respecto a la epidemiología, la expansión de PCR rápidos provocará que:",
+                options: [
+                    "La incidencia de infecciones por bacterias resistentes tienda a descender por menor presión selectiva.",
+                    "Haya más bacterias resistentes al identificarlas más rápido.",
+                    "El tiempo de internación aumente para procesar las muestras.",
+                    "Los virus se vuelvan resistentes a los antibióticos."
+                ],
+                correct: 0,
+                sustento: "Se deduce del texto: diagnóstico rápido -> menos uso empírico -> menor presión selectiva -> menor incidencia. La incidencia tenderá a descender."
+            },
+            {
+                q: "Sobre los ingresos hospitalarios, se menciona que:",
+                options: [
+                    "Son menores gracias a la automedicación.",
+                    "El uso indiscriminado y erróneo de antibióticos favorece la selección de cepas que luego provocan el 28% de internaciones.",
+                    "No hay relación entre farmacias y hospitales.",
+                    "Solo los niños son internados por bacterias resistentes."
+                ],
+                correct: 1,
+                sustento: "La relación causal implícita es que el uso indiscriminado favorece la diseminación de cepas resistentes, reflejado en el elevado porcentaje de internaciones."
+            },
+            {
+                q: "¿Qué ocurre si se amplía el uso de PCR en todos los hospitales bolivianos?",
+                options: [
+                    "Se gasta más dinero sin beneficios reales.",
+                    "Se atenúa la presión selectiva al disminuir la prescripción empírica de forma masiva.",
+                    "Las farmacias dejarán de vender antibióticos.",
+                    "Se curarán los resfriados virales con mayor precisión."
+                ],
+                correct: 1,
+                sustento: "Inferir que una ampliación mantendría la tendencia implica que la prescripción empírica seguirá disminuyendo, atenuando la presión selectiva."
+            },
+            {
+                q: "¿Cómo inciden los factores de riesgo en el costo económico en Bolivia?",
+                options: [
+                    "Los factores de riesgo no tienen impacto económico.",
+                    "Facilitan la diseminación de bacterias que elevan los costos hospitalarios a US$ 55 millones anuales.",
+                    "Reducen los costos al curar a la gente en casa.",
+                    "Generan ganancias para el sistema de salud preventivo."
+                ],
+                correct: 1,
+                sustento: "El artículo señala que los factores facilitan la diseminación y, según el BID, esto eleva los costos hospitalarios a aproximadamente US$ 55 millones al año."
+            },
+            {
+                q: "¿Cuál es la diferencia implícita de impacto entre las campañas de ONG y la Ley de 2022 según el texto?",
+                options: [
+                    "La ley ya redujo la resistencia en un 50%.",
+                    "Las campañas ya muestran resultados cuantitativos (reducción del 30%), mientras que la ley aún no reporta evidencia de impacto medido.",
+                    "La ley es más efectiva que la educación según las estadísticas del texto.",
+                    "No hay ninguna diferencia mencionada."
+                ],
+                correct: 1,
+                sustento: "El texto cita una reducción del 30% en Potosí por la campaña, pero de la Ley solo describe sus requisitos sin mencionar todavía ningún resultado cuantitativo."
+            },
+            {
+                q: "¿Cuál es el papel del monitoreo ambiental en Bolivia según el enfoque One Health?",
+                options: [
+                    "Limpiar los ríos para el turismo.",
+                    "Prevenir que genes de resistencia en ecosistemas acuáticos regresen a la cadena alimentaria humana.",
+                    "Contar cuántos peces hay en el Pilcomayo.",
+                    "Sustituir el agua potable por soluciones antibióticas."
+                ],
+                correct: 1,
+                sustento: "El objetivo es prevenir la propagación de genes de resistencia en ecosistemas acuáticos que pueden regresar a la cadena alimentaria humana."
+            },
+            {
+                q: "¿Qué principio general subyace a las soluciones emergentes en Bolivia?",
+                options: [
+                    "El aislamiento total de los enfermos.",
+                    "La combinación de regulación, educación y tecnología para reducir la presión selectiva y propagación.",
+                    "El reemplazo de la ciencia por la fe.",
+                    "La dependencia exclusiva de donaciones extranjeras."
+                ],
+                correct: 1,
+                sustento: "El artículo describe tres tipos de iniciativas (regulación, educación y tecnología) y enfatiza que su combinación busca reducir la presión y propagación."
+            },
+            {
+                q: "Sobre el argumento de que la Ley reducirá a la mitad los ingresos hospitalarios, el texto permite decir que:",
+                options: [
+                    "Es una verdad científica comprobada.",
+                    "Carece de respaldo empírico en el texto, pues no se proporcionan datos cuantitativos de ese tipo para la ley.",
+                    "Es imposible que una ley logre eso.",
+                    "El texto confirma una reducción del 60%."
+                ],
+                correct: 1,
+                sustento: "El artículo no proporciona datos cuantitativos que demuestren una reducción del 50%. El argumento carece de respaldo empírico en el texto."
+            },
+            {
+                q: "¿Qué implicación social surge de combinar automedicación y falta de diagnóstico?",
+                options: [
+                    "Mayor ahorro para las familias bolivianas.",
+                    "Mayores tasas de infecciones resistentes que elevan costos y amplían la desigualdad en salud.",
+                    "Mejora del sistema inmune de la población.",
+                    "Menor carga para los hospitales públicos."
+                ],
+                correct: 1,
+                sustento: "Ambos factores se asocian a mayores tasas de infecciones resistentes, elevando costos y afectando a poblaciones vulnerables, ampliando la desigualdad."
+            },
+            {
+                q: "La afirmación de que la educación sola es suficiente carece de validez porque:",
+                options: [
+                    "La educación no sirve para nada.",
+                    "El problema es multifactorial y requiere también de leyes, tecnología y enfoque One Health integrado.",
+                    "Los estudiantes no prestan atención a las charlas.",
+                    "La ley prohíbe que la educación sea la única solución."
+                ],
+                correct: 1,
+                sustento: "Se enfatiza que solo un enfoque integrado bajo la perspectiva One Health permitirá contener la resistencia. La educación por sí sola no es suficiente."
+            },
+            {
+                q: "¿Qué implicaciones éticas surgen del uso indiscriminado histórico en Bolivia?",
+                options: [
+                    "No hay implicaciones éticas en la medicina.",
+                    "Una responsabilidad compartida que debe abordarse bajo principios de justicia y beneficencia.",
+                    "La culpa es exclusivamente de los médicos antiguos.",
+                    "El derecho individual a tomar cualquier medicina supera la ética colectiva."
+                ],
+                correct: 1,
+                sustento: "Esto implica una responsabilidad compartida que debe abordarse bajo los principios éticos de justicia (equidad y uso responsable) y beneficencia (preservar efectividad)."
+            },
+            {
+                q: "¿Cuál sería la principal consecuencia social de aplicar eficazmente la Ley de 2022?",
+                options: [
+                    "El aumento de precios de los alimentos.",
+                    "Disminuir la difusión de bacterias resistentes y reducir la carga sobre el sistema de salud.",
+                    "La quiebra de todas las granjas de pollos.",
+                    "El fin de las carreras de farmacia."
+                ],
+                correct: 1,
+                sustento: "Al reducir los comportamientos de riesgo se espera disminuir la difusión de bacterias y, por ende, la carga sobre el sistema de salud."
+            },
+            {
+                q: "¿Cuál es la limitación principal de la terapia con bacteriófagos actualmente?",
+                options: [
+                    "Que es muy dolorosa para el paciente.",
+                    "Su carácter todavía experimental y la falta de disponibilidad comercial masiva.",
+                    "Que las bacterias ya se volvieron resistentes a los virus.",
+                    "Que está prohibida por la Ley de 2022."
+                ],
+                correct: 1,
+                sustento: "Se subraya que está 'en fase experimental' (ensayos clínicos). Por lo tanto, la limitación es su falta de disponibilidad comercial actual."
+            },
+            {
+                q: "Trasladar One Health a los años 60 habría permitido:",
+                options: [
+                    "Evitar el descubrimiento de los antibióticos.",
+                    "Detectar precozmente genes de resistencia y ajustar políticas de uso, reduciendo la selección de cepas.",
+                    "Que la gente viviera menos tiempo pero con más salud.",
+                    "Industrializar la ganadería sin controles médicos."
+                ],
+                correct: 1,
+                sustento: "Aplicar este monitoreo integrado en los años 60 habría permitido detectar precozmente la aparición de genes y ajustar las políticas, reduciendo la selección de cepas."
+            },
+            {
+                q: "¿Qué tan válido es el argumento de que la educación escolar es suficiente?",
+                options: [
+                    "Es totalmente válido y comprobado.",
+                    "Es un argumento débil porque el problema es multifactorial y requiere más que solo educación.",
+                    "No es válido porque los niños no pueden transmitir conocimientos.",
+                    "Es válido solo en el departamento de Potosí."
+                ],
+                correct: 1,
+                sustento: "El texto subraya que es un problema multifactorial que necesita además leyes y tecnología. Por lo tanto, el argumento de que la educación sola es suficiente es débil."
+            },
+            {
+                q: "¿Qué tan válido es el argumento del autor sobre la terapia con fagos?",
+                options: [
+                    "Es una solución definitiva ya lista para su uso.",
+                    "La evidencia es todavía limitada por ser resultados preliminares y se requieren más investigaciones.",
+                    "Es un argumento falso sin base científica.",
+                    "Es el argumento más fuerte de todo el texto."
+                ],
+                correct: 1,
+                sustento: "El artículo indica que estos resultados son preliminares, lo que implica que la evidencia todavía es limitada y se necesitan investigaciones más extensas para validarla."
+            }
+        ];
+
+        // Estado de la aplicación
+        let currentQuestion = 0;
+        let score = 0;
+        let timerSeconds = 30 * 60;
+        let timerInterval;
+        let canAnswer = true;
+
+        // Elementos DOM
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedback = document.getElementById('feedback');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+        const nextBtn = document.getElementById('next-btn');
+        const progress = document.getElementById('progress');
+        const questionCounter = document.getElementById('question-counter');
+        const scoreLive = document.getElementById('score-live');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultScreen = document.getElementById('result-screen');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const performanceMsg = document.getElementById('performance-msg');
+        const detailedStats = document.getElementById('detailed-stats');
+
+        // Inicialización
+        function init() {
+            startTimer();
+            loadQuestion();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                const minutes = Math.floor(timerSeconds / 60);
+                const seconds = timerSeconds % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    showResults();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            canAnswer = true;
+            const qData = questions[currentQuestion];
+            
+            // UI Update
+            questionText.textContent = `Pregunta ${currentQuestion + 1}: ${qData.q}`;
+            questionCounter.textContent = `Pregunta ${currentQuestion + 1} de ${questions.length}`;
+            progress.style.width = `${((currentQuestion + 1) / questions.length) * 100}%`;
+            
+            optionsContainer.innerHTML = '';
+            feedback.classList.add('hidden');
+            
+            qData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full text-left p-4 rounded-xl bg-white shadow-sm border border-gray-200 font-medium text-gray-700 hover:shadow-md";
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(index);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            if (!canAnswer) return;
+            canAnswer = false;
+
+            const correctIndex = questions[currentQuestion].correct;
+            const btns = optionsContainer.querySelectorAll('button');
+
+            btns.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === correctIndex) {
+                    btn.classList.add('correct');
+                } else if (idx === selectedIndex) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            // Feedback
+            feedback.classList.remove('hidden');
+            if (selectedIndex === correctIndex) {
+                score++;
+                feedbackTitle.textContent = "¡Correcto!";
+                feedbackTitle.className = "text-lg font-bold mb-2 text-green-600";
+                feedback.className = "mt-8 p-6 rounded-2xl border-l-8 border-green-500 bg-green-50";
+            } else {
+                feedbackTitle.textContent = "Incorrecto";
+                feedbackTitle.className = "text-lg font-bold mb-2 text-red-600";
+                feedback.className = "mt-8 p-6 rounded-2xl border-l-8 border-red-500 bg-red-50";
+            }
+            
+            feedbackText.innerHTML = `<strong>Sustento:</strong> ${questions[currentQuestion].sustento}`;
+            scoreLive.textContent = `Puntaje: ${score}`;
+        }
+
+        nextBtn.onclick = () => {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        };
+
+        function showResults() {
+            clearInterval(timerInterval);
+            quizContainer.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            const percent = Math.round((score / questions.length) * 100);
+            finalScoreDisplay.textContent = `${percent}%`;
+            
+            let performance = "";
+            let perfClass = "";
+            if (percent >= 85) {
+                performance = "Desempeño: Alto (Excelente dominio del texto)";
+                perfClass = "text-green-600";
+            } else if (percent >= 60) {
+                performance = "Desempeño: Medio (Conocimiento aceptable)";
+                perfClass = "text-yellow-600";
+            } else {
+                performance = "Desempeño: Bajo (Se recomienda volver a leer el material)";
+                perfClass = "text-red-600";
+            }
+            
+            performanceMsg.textContent = performance;
+            performanceMsg.className = `text-xl mb-2 font-bold ${perfClass}`;
+            detailedStats.textContent = `Has acertado ${score} de ${questions.length} preguntas disponibles.`;
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador: Participación Política Jóvenes Bolivianos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f7f4 0%, #ffffff 100%);
+            min-height: 100vh;
+            color: #1a202c; /* Azul petróleo muy oscuro para evitar fatiga */
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        /* Estilos personalizados para feedback */
+        .correct-answer { background-color: #d1fae5 !important; border-color: #10b981 !important; color: #065f46 !important; }
+        .wrong-answer { background-color: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Barra Superior -->
+    <div class="max-w-4xl mx-auto flex justify-between items-center mb-6">
+        <a href="land_pag.html" class="bg-white px-4 py-2 rounded-full shadow-sm text-sm font-semibold text-cyan-700 hover:bg-cyan-50 transition border border-cyan-100 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Volver
+        </a>
+        <div id="timer" class="text-xl font-bold text-cyan-800 bg-white px-4 py-2 rounded-xl shadow-inner border border-cyan-100">
+            30:00
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto">
+        <!-- Encabezado -->
+        <header class="text-center mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Impacto de la digitalización y las redes sociales en la participación política de los jóvenes bolivianos</h1>
+            <p class="text-gray-600 italic">Repositorio de Preguntas - Educación Superior</p>
+        </header>
+
+        <!-- Barra de Progreso -->
+        <div class="mb-8">
+            <div class="flex justify-between text-xs font-semibold text-cyan-700 mb-2">
+                <span id="progress-text">Pregunta 1 de 30</span>
+                <span id="score-text">Puntaje: 0</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div id="progress-bar" class="bg-cyan-500 h-3 rounded-full transition-all duration-500" style="width: 3.33%"></div>
+            </div>
+        </div>
+
+        <!-- Contenedor de Pregunta -->
+        <div id="quiz-container" class="glass-card rounded-3xl p-6 md:p-10 shadow-xl relative overflow-hidden">
+            <div id="question-area">
+                <h2 id="question-title" class="text-xl md:text-2xl font-bold mb-8 leading-tight">Cargando pregunta...</h2>
+                <div id="options-grid" class="grid grid-cols-1 gap-4 mb-8">
+                    <!-- Las opciones se generan dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Retroalimentación (Oculta por defecto) -->
+            <div id="feedback-area" class="hidden mt-6 p-6 rounded-2xl border-2 transition-all duration-300">
+                <p id="feedback-status" class="font-bold text-lg mb-2"></p>
+                <div class="text-sm italic text-gray-700 leading-relaxed">
+                    <span class="font-bold uppercase block mb-1">Sustento Académico:</span>
+                    <p id="feedback-text"></p>
+                </div>
+                <button id="next-btn" class="mt-6 w-full md:w-auto bg-cyan-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-cyan-700 transition shadow-lg">
+                    Siguiente Pregunta
+                </button>
+            </div>
+        </div>
+
+        <!-- Pantalla de Resultados (Oculta por defecto) -->
+        <div id="results-container" class="hidden glass-card rounded-3xl p-10 shadow-xl text-center">
+            <h2 class="text-3xl font-bold mb-4">¡Simulacro Finalizado!</h2>
+            <div class="flex justify-center gap-8 my-8">
+                <div class="text-center">
+                    <p class="text-sm text-gray-500 uppercase">Puntaje</p>
+                    <p id="final-score" class="text-5xl font-extrabold text-cyan-600">0</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-gray-500 uppercase">Logro</p>
+                    <p id="final-percentage" class="text-5xl font-extrabold text-cyan-600">0%</p>
+                </div>
+            </div>
+            <div id="performance-badge" class="inline-block px-6 py-2 rounded-full font-bold text-lg mb-6"></div>
+            <p id="performance-msg" class="text-gray-700 mb-8 max-w-md mx-auto"></p>
+            <button onclick="location.reload()" class="bg-gray-800 text-white px-10 py-4 rounded-2xl font-bold hover:bg-black transition shadow-xl">
+                Reiniciar simulador
+            </button>
+        </div>
+
+        <!-- Créditos -->
+        <footer class="mt-12 text-center text-gray-500 text-sm">
+            <p class="font-bold uppercase">SIMULADOR ACADÉMICO DE COMPRENSIÓN LECTORA</p>
+            <p class="italic">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+        </footer>
+    </main>
+
+    <script>
+        const questions = [
+            {
+                q: "¿Cuál es la consecuencia social inmediata que tuvo la campaña del hashtag #ReformaEducativa2022 descrita en el artículo?",
+                options: [
+                    "Una reducción del 12% en la intención de voto juvenil.",
+                    "La creación de una identidad colectiva en redes sociales únicamente.",
+                    "Una marcha en la Plaza Murillo con más de 5000 participantes.",
+                    "La alfabetización digital automática de los estudiantes de la UMSA."
+                ],
+                correct: 2,
+                sustento: "En la sección 'Movilización a través de plataformas digitales' del artículo se indica que el hashtag #ReformaEducativa2022 alcanzó más de 250,000 interacciones y que la convocatoria resultó en una marcha en la Plaza Murillo con más de 5,000 participantes."
+            },
+            {
+                q: "¿Cuál es la diferencia porcentual entre el porcentaje de jóvenes que distinguen noticias reales en La Paz frente a Potosí?",
+                options: ["12 puntos porcentuales", "22 puntos porcentuales", "35 puntos porcentuales", "18 puntos porcentuales"],
+                correct: 1,
+                sustento: "El 76% de los jóvenes de La Paz declara sentirse capaz de distinguir noticias reales, mientras que en Potosí esa cifra es del 54%. La diferencia es 76% - 54% = 22 puntos porcentuales."
+            },
+            {
+                q: "Según la teoría del 'Efecto de Red', ¿cuál es el segundo mecanismo que explica cómo las redes favorecen las protestas?",
+                options: [
+                    "El bajo costo de participación logístico.",
+                    "La difusión de información para identidad colectiva.",
+                    "La retroalimentación instantánea (likes, retweets) que refuerza el apoyo social.",
+                    "La fragmentación de grupos rivales mediante WhatsApp."
+                ],
+                correct: 2,
+                sustento: "El segundo mecanismo es la retroalimentación instantánea (likes, retweets) que refuerza la percepción de apoyo social."
+            },
+            {
+                q: "¿Cuál es la diferencia porcentual entre los jóvenes con smartphone a nivel nacional y la capacidad de distinguir noticias en Potosí?",
+                options: ["30%", "41%", "35%", "33%"],
+                correct: 2,
+                sustento: "El 89% de los jóvenes bolivianos posee un smartphone y en Potosí solo el 54% distingue noticias reales. La diferencia es 89% - 54% = 35%."
+            },
+            {
+                q: "¿Cómo define el artículo el concepto de participación simbólica?",
+                options: [
+                    "Acción colectiva física coordinada por medios digitales.",
+                    "Expresión de opiniones y valores sin necesariamente traducirse en acción concreta.",
+                    "Uso de bots para inflar la percepción de apoyo en redes sociales.",
+                    "Afiliación tradicional a partidos políticos mediante sitios web oficiales."
+                ],
+                correct: 1,
+                sustento: "El artículo define la participación simbólica como 'la expresión de opiniones y valores sin necesariamente traducirse en acción concreta'."
+            },
+            {
+                q: "¿Cuál es la definición de alfabetización digital según el texto (UNESCO, 2022)?",
+                options: [
+                    "Poseer un smartphone con conexión a internet estable.",
+                    "Capacidad de buscar, evaluar y utilizar información digital de forma responsable.",
+                    "Habilidad para editar videos de corta duración en TikTok.",
+                    "Aumentar la probabilidad de votar mediante el uso de redes sociales."
+                ],
+                correct: 1,
+                sustento: "El artículo define la alfabetización digital como 'la capacidad de buscar, evaluar y utilizar la información digital de forma responsable'."
+            },
+            {
+                q: "La efectividad de la participación política de los jóvenes bolivianos depende principalmente de:",
+                options: [
+                    "El aumento de la cobertura de internet en hogares al 71%.",
+                    "La alfabetización digital desigual que debe ser reforzada para evitar la apatía.",
+                    "La cantidad de likes que reciba un hashtag de protesta.",
+                    "La ubicación geográfica exclusiva en el eje central."
+                ],
+                correct: 1,
+                sustento: "Aunque el 89% posee smartphone, la alfabetización digital sigue siendo desigual y es clave para evitar la apatía política y permitir la evaluación crítica."
+            },
+            {
+                q: "¿Cuál es la diferencia principal entre 'Voces del Chaco' y la campaña '#ReformaEducativa2022'?",
+                options: [
+                    "El uso de WhatsApp frente al uso de Instagram.",
+                    "El enfoque en la movilización presencial masiva frente a la participación simbólica mediante debates.",
+                    "La inversión económica realizada en cada plataforma.",
+                    "El nivel educativo de los jóvenes participantes."
+                ],
+                correct: 1,
+                sustento: "'Voces del Chaco' consiste en podcasts (participación simbólica) mientras que '#ReformaEducativa2022' organizó una marcha presencial de 5,000 personas."
+            },
+            {
+                q: "En comparación con la movilización de la UMSA, la iniciativa 'Voces del Chaco' se caracteriza por:",
+                options: [
+                    "Generar debates y expresar opiniones de forma creativa sin traducirse necesariamente en acción física.",
+                    "Haber reunido a más de 250,000 personas en las calles.",
+                    "Ser un mecanismo de bajo costo para derrocar autoridades universitarias.",
+                    "Limitarse únicamente a la difusión de noticias falsas."
+                ],
+                correct: 0,
+                sustento: "Se describe como podcasts que generan debates, una forma de participación simbólica que no se traduce necesariamente en acciones presenciales."
+            },
+            {
+                q: "Debido al 'bajo costo' de la participación digital, es probable que:",
+                options: [
+                    "Los jóvenes dejen de participar en política por aburrimiento.",
+                    "Aumente la presión para que el Estado invierta en infraestructura digital y transparencia.",
+                    "Se elimine por completo la polarización en el departamento del Beni.",
+                    "Los memes políticos pierdan su relevancia pedagógica."
+                ],
+                correct: 1,
+                sustento: "El bajo costo genera mayor presión de los jóvenes para que el Estado invierta en infraestructura digital, lo que puede traducirse en beneficios económicos."
+            },
+            {
+                q: "¿Cómo se diferencian los efectos de la digitalización en la UMSA frente a la región del Beni?",
+                options: [
+                    "En la UMSA hubo apatía, mientras que en el Beni hubo movilización masiva.",
+                    "En la UMSA hubo movilización masiva y en el Beni fragmentación por mensajes polarizadores en WhatsApp.",
+                    "Ambos casos mostraron una identidad colectiva sólida basada en el 'efecto de red'.",
+                    "No existe diferencia, ya que ambos usaron las redes para construir consensos."
+                ],
+                correct: 1,
+                sustento: "UMSA mostró movilización masiva (Efecto de red) y en el Beni hubo fragmentación y dificultad de consensos debido a la polarización en WhatsApp."
+            },
+            {
+                q: "¿Cuál es la consecuencia social más distintiva de la expresión simbólica frente a la movilización?",
+                options: [
+                    "La expresión simbólica siempre precede a la movilización física.",
+                    "La movilización traduce actividad en línea a acción colectiva, mientras la simbólica fomenta pertenencia y habilidades.",
+                    "La expresión simbólica tiene un costo de participación mucho más alto.",
+                    "La movilización física es menos efectiva que el uso de memes para el cambio político."
+                ],
+                correct: 1,
+                sustento: "La movilización llevó a una protesta física concreta. La participación simbólica (memes, podcasts) fomenta pertenencia pero su traducción a cambios concretos aún se investiga."
+            },
+            {
+                q: "Sobre el efecto histórico (2013-2022), ¿cuál es la conclusión más probable?",
+                options: [
+                    "La expansión digital asegura automáticamente un aumento en la participación política.",
+                    "El acceso masivo a internet ha eliminado las brechas educativas en el país.",
+                    "La expansión digital por sí sola no asegura la participación si no hay alfabetización que mitigue las 'fake news'.",
+                    "El 89% de los jóvenes ha dejado de votar debido al uso de smartphones."
+                ],
+                correct: 2,
+                sustento: "Aunque hay más conectividad, la calidad de participación varía por la alfabetización digital; la exposición a noticias falsas reduce un 12% la probabilidad de votar."
+            },
+            {
+                q: "¿Qué perspectiva futura sugiere el autor para potenciar la participación política?",
+                options: [
+                    "Restringir el acceso a TikTok para evitar la distracción de los estudiantes.",
+                    "Implementar alfabetización digital escolar, transparencia institucional y apoyo a contenido juvenil académico.",
+                    "Sustituir el voto físico por un sistema de likes en Facebook.",
+                    "Eliminar las organizaciones de la sociedad civil para centralizar la información."
+                ],
+                correct: 1,
+                sustento: "Se proponen tres líneas: alfabetización escolar, políticas de transparencia/participación online y apoyo a contenidos juveniles con rigor académico."
+            },
+            {
+                q: "Si se intensifica el proyecto 'Voces del Chaco', ¿qué es probable que ocurra?",
+                options: [
+                    "Se reducirán los debates en la comunidad académica.",
+                    "Se reforzará la inserción de la perspectiva juvenil en la agenda pública ambiental.",
+                    "Los jóvenes perderán interés en la justicia social.",
+                    "La UMSA dejará de utilizar hashtags para movilizaciones físicas."
+                ],
+                correct: 1,
+                sustento: "El proyecto ya genera debates y facilita la inserción juvenil en la agenda pública; intensificarlo reforzará esa posición y la presión política."
+            },
+            {
+                q: "La diferencia esencial entre la campaña de la UMSA y el uso de WhatsApp en el Beni radica en:",
+                options: [
+                    "La velocidad de internet en cada región.",
+                    "La identificación colectiva y acción física frente a la fragmentación y polarización.",
+                    "El costo de los planes de datos móviles.",
+                    "La edad promedio de los usuarios de Twitter frente a los de WhatsApp."
+                ],
+                correct: 1,
+                sustento: "La campaña de la UMSA evidenció identificación colectiva y acción física, mientras el caso del Beni señala fragmentación y dificultad para consensos."
+            },
+            {
+                q: "¿Qué principio general se extrae sobre digitalización y participación política juvenil?",
+                options: [
+                    "A mayor número de smartphones, mayor democracia garantizada.",
+                    "La mera posesión de dispositivos no garantiza participación crítica sin alfabetización digital.",
+                    "El internet cotidiano reduce la capacidad crítica de los jóvenes bolivianos.",
+                    "Las redes sociales son el único factor que determina la participación electoral."
+                ],
+                correct: 1,
+                sustento: "El 89% tiene smartphone pero la posesión no garantiza participación crítica; la alfabetización es clave para evitar la apatía política."
+            },
+            {
+                q: "Si se implementan programas nacionales de alfabetización digital, ¿qué es probable que ocurra?",
+                options: [
+                    "Aumentará la brecha entre La Paz y Potosí.",
+                    "Aumentará la habilidad de distinguir info falsa, mitigando la caída del 12% en intención de voto.",
+                    "Se prohibirá el uso de hashtags en la educación superior.",
+                    "La polarización en el Beni se trasladará a todo el país."
+                ],
+                correct: 1,
+                sustento: "Es razonable inferir que mejorar la capacidad crítica mitigará la reducción del 12% en la probabilidad de voto asociada a las noticias falsas."
+            },
+            {
+                q: "Según el artículo, ¿qué efecto tendría la alfabetización extensiva en las escuelas?",
+                options: [
+                    "Incrementar la apatía política de los docentes.",
+                    "Revertir la tendencia de desinterés electoral causada por las 'fake news'.",
+                    "Reducir el acceso de los jóvenes a dispositivos móviles.",
+                    "Favorecer la fragmentación de grupos rivales universitarios."
+                ],
+                correct: 1,
+                sustento: "Menciona que la alfabetización es clave para que la digitalización no conduzca a la apatía, revirtiendo la reducción de intención de voto."
+            },
+            {
+                q: "¿Qué principio puede inferirse sobre el papel de los jóvenes como actores políticos?",
+                options: [
+                    "Son receptores pasivos de la información que el Estado proporciona.",
+                    "Actúan como catalizadores que coordinan acciones colectivas y crean discursos digitales.",
+                    "Su participación se limita exclusivamente a la votación tradicional cada cinco años.",
+                    "Carecen de la capacidad de insertar sus perspectivas en la agenda pública."
+                ],
+                correct: 1,
+                sustento: "Los ejemplos de la UMSA (protestas) y Voces del Chaco (contenido simbólico) confirman que coordinan acciones y crean discursos propios."
+            },
+            {
+                q: "¿Qué diferencia económica se infiere entre el uso de hashtags y la exposición a noticias falsas?",
+                options: [
+                    "Los hashtags son gratuitos y las noticias falsas son pagadas por el Estado.",
+                    "La movilización por hashtags genera influencia política/económica; las fake news reducen la capacidad de influir electoralmente.",
+                    "No existe ninguna relación entre la digitalización y la economía política.",
+                    "La digitalización ha eliminado la necesidad de presupuesto para procesos electorales."
+                ],
+                correct: 1,
+                sustento: "La movilización genera participación concreta e influencia en políticas; las fake news reducen el voto y por ende la capacidad de influir en procesos."
+            },
+            {
+                q: "La principal fortaleza del enfoque metodológico del artículo es:",
+                options: [
+                    "Basarse únicamente en opiniones personales del autor.",
+                    "La triangulación entre estadísticas oficiales (INE/Encuesta) y casos de estudio cualitativos.",
+                    "El uso exclusivo de fuentes internacionales de la UNESCO.",
+                    "Ignorar los datos estadísticos para centrarse en la narrativa de los jóvenes."
+                ],
+                correct: 1,
+                sustento: "Utiliza datos del INE y la Encuesta Nacional junto con casos como UMSA y Voces del Chaco, brindando triangulación y contexto."
+            },
+            {
+                q: "Sobre el argumento de que la digitalización revitaliza la democracia con alfabetización, ¿qué tan válido es?",
+                options: [
+                    "Es inválido porque el internet siempre genera polarización.",
+                    "Es válido, pues los datos muestran que la capacidad crítica vincula a los jóvenes con una mayor intención participativa.",
+                    "Solo es válido para el departamento de La Paz.",
+                    "Es una opinión sin sustento en los datos de la Encuesta Nacional de Jóvenes."
+                ],
+                correct: 1,
+                sustento: "Las conclusiones y el apartado de alfabetización muestran que la capacidad de distinguir noticias reales vincula a una mayor intención de participar."
+            },
+            {
+                q: "¿Qué limitación NO está contemplada en las soluciones propuestas por el autor?",
+                options: [
+                    "La alfabetización digital en niveles escolares.",
+                    "Medidas concretas para ampliar la infraestructura de conectividad en zonas rurales.",
+                    "El fomento de la transparencia institucional.",
+                    "El apoyo a la producción de contenido juvenil."
+                ],
+                correct: 1,
+                sustento: "El autor propone alfabetización y transparencia, pero no menciona medidas para ampliar infraestructura en zonas rurales a pesar de reconocer la brecha geográfica."
+            },
+            {
+                q: "¿Qué evidencia sería más pertinente para probar que la alfabetización aumenta la intención de voto?",
+                options: [
+                    "Nuevas encuestas de opinión en redes sociales.",
+                    "Evidencia experimental que controle variables y mida cambios antes/después de la intervención.",
+                    "Aumentar el número de smartphones en Potosí.",
+                    "Contar el número de retweets del hashtag de la UMSA."
+                ],
+                correct: 1,
+                sustento: "La evidencia actual es correlacional; para demostrar causalidad se requeriría un diseño experimental controlado."
+            },
+            {
+                q: "¿Por qué es relevante la alfabetización en escuelas bolivianas según el texto?",
+                options: [
+                    "Para que los jóvenes aprendan a programar aplicaciones de mensajería.",
+                    "Para mitigar la desinformación que reduce la probabilidad de voto y favorecer una participación informada.",
+                    "Para que los estudiantes de Potosí superen en tecnología a los de La Paz.",
+                    "Porque es un requisito de la UNESCO para recibir financiamiento."
+                ],
+                correct: 1,
+                sustento: "Es esencial para mitigar el efecto de las noticias falsas que reducen la probabilidad de voto en un 12% y fomentar una base informada."
+            },
+            {
+                q: "¿Qué sesgo económico presenta el autor en su análisis?",
+                options: [
+                    "Afirmar que los smartphones son demasiado caros para los jóvenes bolivianos.",
+                    "Omitir cómo la situación socioeconómica (ingresos, planes de datos) afecta la calidad de la participación.",
+                    "Centrarse demasiado en la inversión estatal en plataformas oficiales seguras.",
+                    "Sobrevalorar el costo de producción de los podcasts ambientales."
+                ],
+                correct: 1,
+                sustento: "El texto no aborda cómo el ingreso familiar o la capacidad de pago afectan el acceso, lo cual es un sesgo al analizar la digitalización."
+            },
+            {
+                q: "Sobre iniciativas como 'Voces del Chaco', ¿qué afirma el artículo sobre su papel en políticas ambientales?",
+                options: [
+                    "Que ya han logrado cambiar todas las leyes de conservación en el Gran Chaco.",
+                    "Que facilitan la inserción de la perspectiva juvenil en la agenda, pero su traducción a cambios concretos se sigue investigando.",
+                    "Que son menos efectivas que las marchas físicas en la Plaza Murillo.",
+                    "Que carecen de rigor académico para influir en las ONG."
+                ],
+                correct: 1,
+                sustento: "Facilitan la inserción en la agenda pública, pero el artículo aclara que la medida de su traducción a cambios políticos sigue en investigación."
+            },
+            {
+                q: "¿Cuáles son las implicaciones éticas y sociales al diseñar programas de alfabetización digital?",
+                options: [
+                    "Garantizar que todos los jóvenes tengan la misma marca de smartphone.",
+                    "Incluir pensamiento crítico, inclusión digital y medidas contra la desinformación para reducir brechas regionales.",
+                    "Priorizar el contenido de TikTok sobre la investigación académica.",
+                    "Evitar que los jóvenes participen en debates sobre justicia social."
+                ],
+                correct: 1,
+                sustento: "Deben considerar el pensamiento crítico, la inclusión, la reducción de brechas entre regiones y la protección contra la manipulación."
+            },
+            {
+                q: "¿Cuál es la implicación ética más relevante de la desigualdad entre La Paz y Potosí?",
+                options: [
+                    "Que los jóvenes de Potosí tienen menos tiempo libre para usar internet.",
+                    "Que la falta de alfabetización expone a ciertos jóvenes a desinformación, vulnerando la igualdad democrática.",
+                    "Que el INE no tiene datos suficientes sobre el Departamento de La Paz.",
+                    "Que los memes políticos son más divertidos en las ciudades con mayor conectividad."
+                ],
+                correct: 1,
+                sustento: "La diferencia de capacidad para distinguir noticias (76% vs 54%) combinada con la caída del voto indica una vulnerabilidad ética que afecta la igualdad democrática."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 30 * 60; // 30 minutos
+        let timerInterval;
+
+        const questionTitle = document.getElementById('question-title');
+        const optionsGrid = document.getElementById('options-grid');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackStatus = document.getElementById('feedback-status');
+        const feedbackText = document.getElementById('feedback-text');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const scoreText = document.getElementById('score-text');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showResults();
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            const qData = questions[currentQuestion];
+            questionTitle.textContent = qData.q;
+            optionsGrid.innerHTML = '';
+            feedbackArea.classList.add('hidden');
+            
+            qData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full text-left p-4 rounded-xl border-2 border-gray-100 bg-white hover:border-cyan-300 transition-all font-medium";
+                btn.innerHTML = `<span class="inline-block w-8 h-8 rounded-lg bg-gray-100 text-center leading-8 mr-3 font-bold text-gray-500">${String.fromCharCode(65 + index)}</span> ${opt}`;
+                btn.onclick = () => checkAnswer(index);
+                optionsGrid.appendChild(btn);
+            });
+
+            // Actualizar progreso
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `Pregunta ${currentQuestion + 1} de ${questions.length}`;
+        }
+
+        function checkAnswer(selectedIndex) {
+            const qData = questions[currentQuestion];
+            const buttons = optionsGrid.querySelectorAll('button');
+            
+            // Bloquear botones
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === qData.correct) {
+                score++;
+                buttons[selectedIndex].classList.add('correct-answer');
+                feedbackStatus.textContent = "¡Respuesta Correcta!";
+                feedbackArea.className = "mt-6 p-6 rounded-2xl border-2 correct-answer block";
+            } else {
+                buttons[selectedIndex].classList.add('wrong-answer');
+                buttons[qData.correct].classList.add('correct-answer');
+                feedbackStatus.textContent = "Respuesta Incorrecta";
+                feedbackArea.className = "mt-6 p-6 rounded-2xl border-2 wrong-answer block";
+            }
+
+            feedbackText.textContent = qData.sustento;
+            scoreText.textContent = `Puntaje: ${score}`;
+            feedbackArea.classList.remove('hidden');
+        }
+
+        nextBtn.onclick = () => {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        };
+
+        function showResults() {
+            clearInterval(timerInterval);
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('final-percentage').textContent = `${percentage}%`;
+
+            const badge = document.getElementById('performance-badge');
+            const msg = document.getElementById('performance-msg');
+
+            if (percentage >= 85) {
+                badge.textContent = "DESEMPEÑO: ALTO";
+                badge.className = "inline-block px-6 py-2 rounded-full font-bold text-lg mb-6 bg-green-100 text-green-700";
+                msg.textContent = "Excelente dominio de la comprensión lectora académica. Tu capacidad de análisis crítico es sobresaliente.";
+            } else if (percentage >= 60) {
+                badge.textContent = "DESEMPEÑO: MEDIO";
+                badge.className = "inline-block px-6 py-2 rounded-full font-bold text-lg mb-6 bg-yellow-100 text-yellow-700";
+                msg.textContent = "Buen desempeño, pero puedes mejorar en los detalles técnicos y estadísticos del texto.";
+            } else {
+                badge.textContent = "DESEMPEÑO: BAJO";
+                badge.className = "inline-block px-6 py-2 rounded-full font-bold text-lg mb-6 bg-red-100 text-red-700";
+                msg.textContent = "Se recomienda una lectura más profunda del material y práctica constante en análisis de textos académicos.";
+            }
+        }
+
+        // Iniciar
+        window.onload = () => {
+            startTimer();
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>

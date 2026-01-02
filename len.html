@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONOCIMIENTOS GENERALES - LENGUAJE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #ffffff 100%);
+            color: #1a2a3a; /* Azul petróleo profundo */
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+            border: 2px solid #e2e8f0;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: #4fd1c5;
+            background-color: #f0fff4;
+        }
+        .option-correct {
+            background-color: #c6f6d5 !important;
+            border-color: #38a169 !important;
+            color: #22543d !important;
+        }
+        .option-wrong {
+            background-color: #fed7d7 !important;
+            border-color: #e53e3e !important;
+            color: #742a2a !important;
+        }
+        .progress-bar-fill {
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <a href="land_pag.html" class="bg-white px-6 py-2 rounded-full shadow-sm font-semibold hover:shadow-md transition text-teal-600 border border-teal-100">
+                ← Volver
+            </a>
+            <h1 class="text-2xl md:text-3xl font-bold text-center text-teal-800">CONOCIMIENTOS GENERALES - LENGUAJE</h1>
+            <div id="timer" class="bg-teal-900 text-white px-6 py-2 rounded-full font-mono text-xl shadow-lg">
+                30:00
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 rounded-full h-3 mb-8">
+            <div id="progressFill" class="bg-teal-500 h-3 rounded-full progress-bar-fill" style="width: 0%"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div id="quizContainer" class="glass-card p-6 md:p-10">
+            <!-- Question Box -->
+            <div id="questionBox">
+                <div class="flex justify-between items-center mb-6">
+                    <span id="questionNumber" class="text-teal-600 font-bold uppercase tracking-widest text-sm">Pregunta 1 de 20</span>
+                </div>
+                
+                <h2 id="questionText" class="text-xl md:text-2xl font-bold mb-8 leading-tight">
+                    Cargando pregunta...
+                </h2>
+
+                <div id="optionsContainer" class="grid grid-cols-1 gap-4">
+                    <!-- Options will be injected here -->
+                </div>
+
+                <!-- Feedback Area -->
+                <div id="feedback" class="mt-8 p-6 rounded-xl hidden">
+                    <p id="feedbackTitle" class="font-bold text-lg mb-2"></p>
+                    <p id="feedbackText" class="text-sm leading-relaxed italic"></p>
+                    <button id="nextBtn" class="mt-6 bg-teal-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-teal-700 transition w-full md:w-auto">
+                        Siguiente Pregunta
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Screen (Hidden by default) -->
+            <div id="resultsBox" class="hidden text-center">
+                <h2 class="text-4xl font-bold text-teal-800 mb-4">¡Simulacro Finalizado!</h2>
+                <div class="flex justify-center mb-8">
+                    <div class="relative w-48 h-48 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90">
+                            <circle cx="96" cy="96" r="88" stroke="currentColor" stroke-width="12" fill="transparent" class="text-gray-200"/>
+                            <circle id="resultCircle" cx="96" cy="96" r="88" stroke="currentColor" stroke-width="12" fill="transparent" stroke-dasharray="552.92" stroke-dashoffset="552.92" class="text-teal-500 transition-all duration-1000"/>
+                        </svg>
+                        <span id="finalScore" class="absolute text-4xl font-bold">0%</span>
+                    </div>
+                </div>
+                <p id="performanceLevel" class="text-2xl font-bold mb-2"></p>
+                <p id="performanceMsg" class="text-gray-600 mb-8 max-w-md mx-auto"></p>
+                
+                <div class="grid grid-cols-2 gap-4 mb-8 max-w-sm mx-auto">
+                    <div class="bg-teal-50 p-4 rounded-xl border border-teal-100">
+                        <span class="block text-gray-500 text-sm">Correctas</span>
+                        <span id="correctCount" class="text-2xl font-bold text-teal-700">0</span>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-xl border border-red-100">
+                        <span class="block text-gray-500 text-sm">Erróneas</span>
+                        <span id="wrongCount" class="text-2xl font-bold text-red-700">0</span>
+                    </div>
+                </div>
+
+                <button onclick="location.reload()" class="bg-teal-600 text-white px-10 py-4 rounded-2xl font-bold hover:bg-teal-700 transition shadow-lg">
+                    Reiniciar simulador
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-gray-500 text-sm">
+            <p class="font-semibold">@victor 2026-SIMULADOR ACADÉMICO DE CONOCIMIENTOS GENERALES- LENGUAJE</p>
+            <p class="mt-2 italic">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+        </footer>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "En el estudio del lenguaje, se reconoce que toda comunicación humana implica la transmisión de un mensaje entre interlocutores en un contexto determinado. ¿Cuál es la función del lenguaje que se centra en el contenido del mensaje que se transmite?",
+                options: ["Función emotiva", "Función apelativa", "Función referencial", "Función metalingüística"],
+                correct: 2,
+                sustento: "La función referencial del lenguaje se orienta a informar, describir o explicar hechos de la realidad de manera objetiva. Su propósito principal es transmitir información clara y verificable."
+            },
+            {
+                q: "¿Cómo se define correctamente el sujeto dentro de una oración desde la gramática del español?",
+                options: [
+                    "Como el elemento que indica dónde ocurre la acción verbal.",
+                    "Como el sintagma nominal del que se predica la acción, estado o cualidad expresada por el verbo.",
+                    "Como la palabra que siempre debe aparecer de forma explícita al inicio de la frase.",
+                    "Como el complemento que recibe directamente la acción del verbo transitivo."
+                ],
+                correct: 1,
+                sustento: "El sujeto se define como el sintagma nominal del que se predica la acción, el estado o la cualidad expresada por el verbo. Mantiene una relación de concordancia gramatical con el verbo en número y persona."
+            },
+            {
+                q: "¿Cuál de las siguientes palabras cumple principalmente una función adjetiva dentro de una oración?",
+                options: ["Caminar", "Rápidamente", "Brillante", "Aunque"],
+                correct: 2,
+                sustento: "El adjetivo cumple la función de modificar al sustantivo, ya sea calificándolo o determinándolo, al aportar información adicional sobre sus cualidades, estados o características."
+            },
+            {
+                q: "¿Cuál es la finalidad principal del uso de la tilde diacrítica?",
+                options: [
+                    "Marcar siempre la sílaba tónica en palabras esdrújulas.",
+                    "Diferenciar palabras con la misma forma gráfica pero distintas funciones gramaticales o significados.",
+                    "Sustituir a los signos de puntuación en oraciones interrogativas.",
+                    "Indicar que una palabra debe pronunciarse con mayor intensidad por ser aguda."
+                ],
+                correct: 1,
+                sustento: "La tilde diacrítica permite diferenciar palabras que presentan la misma forma gráfica, pero que cumplen funciones gramaticales diferentes o poseen significados distintos. Evita ambigüedades."
+            },
+            {
+                q: "¿Cómo se define el narrador dentro de la teoría literaria?",
+                options: [
+                    "Es la persona real que escribe y publica el libro.",
+                    "Es una instancia narrativa construida dentro del texto encargada de relatar los hechos.",
+                    "Es siempre el protagonista que cuenta su propia vida de forma real.",
+                    "Es el lector que interpreta la historia según su propio contexto."
+                ],
+                correct: 1,
+                sustento: "El narrador es una instancia narrativa construida dentro del texto, encargada de relatar los acontecimientos y organizar la historia. No debe confundirse con el autor empírico."
+            },
+            {
+                q: "¿Cómo se denomina el recurso literario que consiste en la repetición intencionada de un mismo sonido consonántico?",
+                options: ["Hipérbole", "Aliteración", "Onomatopeya", "Personificación"],
+                correct: 1,
+                sustento: "La aliteración consiste en la repetición deliberada de sonidos, generalmente consonánticos, con el propósito de intensificar la sonoridad del texto y generar efectos rítmicos o sensoriales."
+            },
+            {
+                q: "¿Cuál es la característica fundamental que define a las proposiciones subordinadas?",
+                options: [
+                    "Tienen autonomía estructural y semántica plena.",
+                    "Están siempre separadas por un punto seguido de la principal.",
+                    "Dependen sintácticamente de una proposición principal.",
+                    "Son oraciones simples que no requieren nexos."
+                ],
+                correct: 2,
+                sustento: "Las proposiciones subordinadas se distinguen por su dependencia sintáctica respecto de una proposición principal, ya que no poseen autonomía estructural ni semántica plena."
+            },
+            {
+                q: "¿En qué consiste la metáfora como recurso literario?",
+                options: [
+                    "En la comparación directa usando el nexo 'como'.",
+                    "En el traslado de significado entre dos realidades con rasgos de semejanza sin nexos comparativos directos.",
+                    "En la exageración de una cualidad para impresionar al lector.",
+                    "En atribuir cualidades humanas a objetos inanimados."
+                ],
+                correct: 1,
+                sustento: "La metáfora se basa en el traslado de significado entre dos realidades que comparten algún rasgo de semejanza, sin que dicha relación sea expresada mediante nexos comparativos."
+            },
+            {
+                q: "¿A qué aspecto del texto hace referencia el concepto de coherencia textual?",
+                options: [
+                    "Al uso correcto de las tildes y las mayúsculas.",
+                    "A la cantidad de párrafos que tiene un escrito.",
+                    "A la organización lógica y significativa de las ideas para mantener una unidad temática.",
+                    "A la repetición constante de la palabra clave para que no se olvide el tema."
+                ],
+                correct: 2,
+                sustento: "La coherencia textual se refiere a la organización lógica y significativa de las ideas de modo que se articulen de manera comprensible y mantengan una unidad temática."
+            },
+            {
+                q: "¿Cuál es el rasgo principal que define al ensayo como género?",
+                options: [
+                    "La narración de hechos fantásticos en un tiempo remoto.",
+                    "Su carácter reflexivo y argumentativo donde el autor expone juicios personales.",
+                    "La obligatoriedad de rimar cada uno de sus párrafos.",
+                    "Ser un texto breve destinado exclusivamente a la representación teatral."
+                ],
+                correct: 1,
+                sustento: "El ensayo es un género reflexivo y argumentativo en el que el autor expone ideas y juicios personales apoyándose en razonamientos e invitar a la reflexión crítica."
+            },
+            {
+                q: "¿Cuál es la característica fundamental que define al realismo literario?",
+                options: [
+                    "La idealización de la naturaleza y los sentimientos.",
+                    "La representación fiel y objetiva de la realidad y la vida cotidiana.",
+                    "El uso constante de elementos mágicos y sobrenaturales.",
+                    "La evasión de la realidad hacia mundos exóticos y lejanos."
+                ],
+                correct: 1,
+                sustento: "El realismo literario se caracteriza por su intención de representar la realidad de manera fiel y objetiva, poniendo énfasis en la observación de la vida cotidiana y conflictos sociales."
+            },
+            {
+                q: "¿Cómo se denomina a una oración cuyo verbo expresa una acción completa sin requerir un complemento directo?",
+                options: ["Oración Transitiva", "Oración Intransitiva", "Oración Pasiva", "Oración Copulativa"],
+                correct: 1,
+                sustento: "Los verbos intransitivos no necesitan un complemento directo para que la oración tenga sentido completo, ya que la acción o estado se considera suficiente por sí mismo."
+            },
+            {
+                q: "¿Cuál es la característica principal que define a la narración en primera persona?",
+                options: [
+                    "El narrador sabe todo lo que piensan y sienten los personajes.",
+                    "El narrador no participa en la historia y solo observa desde fuera.",
+                    "El narrador forma parte de la historia (protagonista o testigo) y el relato es subjetivo.",
+                    "Es una narración técnica sin matices emocionales."
+                ],
+                correct: 2,
+                sustento: "La narración en primera persona se caracteriza porque el narrador forma parte de la historia, implicando un relato marcado por la subjetividad y el conocimiento limitado."
+            },
+            {
+                q: "¿Cuál es la finalidad principal del uso correcto de la coma en un texto escrito?",
+                options: [
+                    "Indicar el final de un párrafo o de un texto completo.",
+                    "Organizar ideas, señalar pausas breves y establecer relaciones sintácticas.",
+                    "Separar palabras que no tienen ninguna relación entre sí.",
+                    "Sustituir al punto y coma cuando el autor tiene dudas."
+                ],
+                correct: 1,
+                sustento: "La coma organiza las ideas, señala pausas breves y establece relaciones sintácticas. Evita ambigüedades y facilita la lectura fluida."
+            },
+            {
+                q: "¿Qué autor es representativo del Siglo de Oro español?",
+                options: ["Gabriel García Márquez", "Miguel de Cervantes", "Jorge Luis Borges", "Pablo Neruda"],
+                correct: 1,
+                sustento: "Miguel de Cervantes es figura central del Siglo de Oro (siglos XVI-XVII). Su obra Don Quijote es cumbre de la literatura universal por su carácter innovador."
+            },
+            {
+                q: "¿Mediante qué recursos se logra principalmente la cohesión textual?",
+                options: [
+                    "Mediante la invención de nuevas palabras en cada párrafo.",
+                    "A través de mecanismos lingüísticos como conectores, pronombres y elipsis.",
+                    "Asegurando que el texto tenga más de diez páginas de extensión.",
+                    "Evitando el uso de cualquier signo de puntuación."
+                ],
+                correct: 1,
+                sustento: "La cohesión se logra mediante conectores, pronombres, referencias y elipsis, que garantizan la continuidad formal y fluidez del mensaje."
+            },
+            {
+                q: "¿Cuándo se considera que una palabra es polisémica?",
+                options: [
+                    "Cuando se escribe igual que otra pero significa algo totalmente distinto sin relación.",
+                    "Cuando presenta varios significados vinculados entre sí por semejanza o analogía.",
+                    "Cuando solo se puede usar en un único contexto técnico.",
+                    "Cuando es una palabra extranjera que no tiene traducción."
+                ],
+                correct: 1,
+                sustento: "La polisemia ocurre cuando una misma palabra presenta varios significados vinculados entre sí, activándose según el contexto de uso."
+            },
+            {
+                q: "¿Cuál es la finalidad principal de un texto argumentativo?",
+                options: [
+                    "Contar una historia de ficción entretenida.",
+                    "Describir detalladamente un paisaje natural.",
+                    "Convencer o persuadir al receptor sobre una postura o tesis.",
+                    "Enumerar instrucciones para armar un aparato electrónico."
+                ],
+                correct: 2,
+                sustento: "El texto argumentativo tiene como finalidad convencer o persuadir al receptor sobre una postura a través de argumentos lógicos y razonamientos coherentes."
+            },
+            {
+                q: "¿Qué autor es representativo del indigenismo boliviano del siglo XX?",
+                options: ["Alcides Arguedas", "Franz Tamayo", "Ricardo Jaimes Freyre", "Gabriel René Moreno"],
+                correct: 0,
+                sustento: "Alcides Arguedas es exponente principal del indigenismo en Bolivia, denunciando la explotación y marginación de los pueblos originarios a través de su narrativa social."
+            },
+            {
+                q: "¿Qué autor boliviano es reconocido por una poesía introspectiva vinculada a la experiencia urbana de La Paz?",
+                options: ["Oscar Alfaro", "Jaime Saenz", "Edmundo Paz Soldán", "Adela Zamudio"],
+                correct: 1,
+                sustento: "Jaime Saenz es figura central de la poesía boliviana del siglo XX, explorando la muerte, la marginalidad y la experiencia urbana de La Paz con lenguaje simbólico."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timerSeconds = 1800; // 30 minutes
+        let timerInterval;
+        let canAnswer = true;
+
+        const elements = {
+            questionText: document.getElementById('questionText'),
+            optionsContainer: document.getElementById('optionsContainer'),
+            questionNumber: document.getElementById('questionNumber'),
+            progressFill: document.getElementById('progressFill'),
+            feedback: document.getElementById('feedback'),
+            feedbackTitle: document.getElementById('feedbackTitle'),
+            feedbackText: document.getElementById('feedbackText'),
+            nextBtn: document.getElementById('nextBtn'),
+            timer: document.getElementById('timer'),
+            quizContainer: document.getElementById('quizContainer'),
+            resultsBox: document.getElementById('resultsBox'),
+            questionBox: document.getElementById('questionBox'),
+            finalScore: document.getElementById('finalScore'),
+            performanceLevel: document.getElementById('performanceLevel'),
+            performanceMsg: document.getElementById('performanceMsg'),
+            correctCount: document.getElementById('correctCount'),
+            wrongCount: document.getElementById('wrongCount'),
+            resultCircle: document.getElementById('resultCircle')
+        };
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timerSeconds--;
+                const mins = Math.floor(timerSeconds / 60);
+                const secs = timerSeconds % 60;
+                elements.timer.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                
+                if (timerSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            canAnswer = true;
+            elements.feedback.classList.add('hidden');
+            const q = questions[currentQuestion];
+            
+            elements.questionNumber.textContent = `Pregunta ${currentQuestion + 1} de ${questions.length}`;
+            elements.questionText.textContent = q.q;
+            elements.optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn w-full text-left p-5 rounded-xl font-medium text-lg bg-white hover:shadow-md';
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(index);
+                elements.optionsContainer.appendChild(btn);
+            });
+
+            const progress = ((currentQuestion) / questions.length) * 100;
+            elements.progressFill.style.width = `${progress}%`;
+        }
+
+        function checkAnswer(index) {
+            if (!canAnswer) return;
+            canAnswer = false;
+            
+            const q = questions[currentQuestion];
+            const buttons = elements.optionsContainer.children;
+            
+            if (index === q.correct) {
+                score++;
+                buttons[index].classList.add('option-correct');
+                elements.feedbackTitle.textContent = "¡Correcto!";
+                elements.feedback.className = "mt-8 p-6 rounded-xl bg-green-50 border border-green-200 block";
+                elements.feedbackTitle.className = "font-bold text-lg mb-2 text-green-700";
+            } else {
+                buttons[index].classList.add('option-wrong');
+                buttons[q.correct].classList.add('option-correct');
+                elements.feedbackTitle.textContent = "Incorrecto";
+                elements.feedback.className = "mt-8 p-6 rounded-xl bg-red-50 border border-red-200 block";
+                elements.feedbackTitle.className = "font-bold text-lg mb-2 text-red-700";
+            }
+
+            elements.feedbackText.innerHTML = `<strong>Sustento:</strong> ${q.sustento}`;
+            elements.feedback.classList.remove('hidden');
+            
+            // Disable all buttons
+            for (let btn of buttons) btn.disabled = true;
+        }
+
+        elements.nextBtn.onclick = () => {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        };
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            elements.questionBox.classList.add('hidden');
+            elements.resultsBox.classList.remove('hidden');
+            elements.progressFill.style.width = '100%';
+
+            const percentage = Math.round((score / questions.length) * 100);
+            elements.finalScore.textContent = `${percentage}%`;
+            elements.correctCount.textContent = score;
+            elements.wrongCount.textContent = questions.length - score;
+
+            // Gauge animation
+            const offset = 552.92 - (552.92 * percentage / 100);
+            elements.resultCircle.style.strokeDashoffset = offset;
+
+            let level = "";
+            let msg = "";
+            
+            if (percentage >= 80) {
+                level = "Nivel ALTO";
+                msg = "¡Excelente dominio! Tienes una base sólida en lenguaje y comprensión académica superior.";
+                elements.performanceLevel.className = "text-2xl font-bold mb-2 text-green-600";
+            } else if (percentage >= 51) {
+                level = "Nivel MEDIO";
+                msg = "Buen desempeño, pero te recomendamos repasar los sustentos para alcanzar la excelencia.";
+                elements.performanceLevel.className = "text-2xl font-bold mb-2 text-yellow-600";
+            } else {
+                level = "Nivel BAJO";
+                msg = "Es necesario reforzar tus conocimientos. Lee detenidamente el repositorio y vuelve a intentarlo.";
+                elements.performanceLevel.className = "text-2xl font-bold mb-2 text-red-600";
+            }
+
+            elements.performanceLevel.textContent = level;
+            elements.performanceMsg.textContent = msg;
+        }
+
+        // Initialize
+        window.onload = () => {
+            startTimer();
+            loadQuestion();
+        };
+    </script>
+</body>
+</html>

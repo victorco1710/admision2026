@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONOCIMIENTOS GENERALES - GEOGRAFÍA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0f2f1 0%, #ffffff 100%);
+            min-height: 100vh;
+            color: #1a2a3a; /* Azul petróleo profundo */
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1rem;
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+            text-align: left;
+            border: 2px solid transparent;
+        }
+        .option-btn:hover:not(:disabled) {
+            background-color: #f0fdfa;
+            border-color: #2dd4bf;
+            transform: translateY(-1px);
+        }
+        .correct {
+            background-color: #d1fae5 !important;
+            border-color: #10b981 !important;
+            color: #065f46 !important;
+        }
+        .incorrect {
+            background-color: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #991b1b !important;
+        }
+        .progress-bar-fill {
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <a href="land_pag.html" class="bg-white px-4 py-2 rounded-lg shadow-sm text-sm font-semibold hover:bg-gray-50 transition border border-gray-200">
+                ← Volver
+            </a>
+            <div id="timer" class="text-lg font-mono font-bold text-teal-700 bg-teal-50 px-4 py-2 rounded-full border border-teal-200">
+                30:00
+            </div>
+        </div>
+
+        <h1 class="text-2xl md:text-3xl font-bold text-center mb-8 text-slate-800 uppercase tracking-tight">
+            CONOCIMIENTOS GENERALES - GEOGRAFÍA
+        </h1>
+
+        <!-- Simulator Container -->
+        <div id="quiz-container" class="glass-card shadow-xl p-6 md:p-10 mb-8">
+            <!-- Progress Section -->
+            <div class="mb-6">
+                <div class="flex justify-between text-sm mb-2 font-medium text-slate-500">
+                    <span>Progreso: <span id="current-q-num">1</span> de 20</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progress-bar" class="bg-teal-500 h-3 rounded-full progress-bar-fill" style="width: 5%"></div>
+                </div>
+            </div>
+
+            <!-- Question Area -->
+            <div id="question-box">
+                <p id="question-text" class="text-xl font-bold leading-tight mb-6 text-slate-800">
+                    Cargando pregunta...
+                </p>
+                <div id="options-container" class="space-y-3">
+                    <!-- Options will be injected here -->
+                </div>
+            </div>
+
+            <!-- Feedback Area -->
+            <div id="feedback-box" class="hidden mt-6 p-4 rounded-lg border">
+                <p id="feedback-status" class="font-bold mb-1"></p>
+                <p id="feedback-text" class="text-sm italic leading-relaxed"></p>
+                <button id="next-btn" class="mt-4 w-full bg-slate-800 text-white font-bold py-3 rounded-xl hover:bg-slate-700 transition shadow-lg">
+                    Siguiente Pregunta
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Screen (Hidden by default) -->
+        <div id="result-screen" class="hidden glass-card shadow-2xl p-8 text-center animate-fade-in">
+            <h2 class="text-3xl font-bold mb-4">Resultado Final</h2>
+            <div class="text-6xl font-black text-teal-600 mb-2" id="final-score">0/20</div>
+            <div class="text-xl font-semibold mb-6" id="final-percentage">0% de aciertos</div>
+            
+            <div id="performance-badge" class="inline-block px-6 py-2 rounded-full font-bold text-white mb-6 uppercase tracking-wider">
+                -
+            </div>
+
+            <p id="performance-msg" class="text-slate-600 mb-8 italic text-lg"></p>
+
+            <button onclick="location.reload()" class="bg-teal-600 text-white font-bold py-4 px-8 rounded-2xl hover:bg-teal-500 transition-all shadow-xl hover:scale-105 active:scale-95">
+                Reiniciar simulador
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-slate-400 text-sm">
+            <p>@victor 2026-SIMULADOR ACADÉMICO DE CONOCIMIENTOS GENERALES - GEOGRAFÍA</p>
+            <p class="font-semibold text-teal-600 mt-2">"Con esfuerzo lograrás el éxito, no desmayes"</p>
+        </footer>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "Desde la perspectiva de la geografía regional sudamericana, la ubicación de un país influye de manera decisiva en sus características físicas, climáticas y socio-territoriales. Considerando la posición de Bolivia en el continente, ¿qué rasgo define con mayor precisión su ubicación geográfica?",
+                options: [
+                    "Es un país exclusivamente andino sin contacto con otras regiones.",
+                    "Se localiza en la región central de América del Sur, siendo un país de transición entre Andes, Amazonía y Chaco.",
+                    "Su ubicación es periférica respecto a los centros económicos del continente.",
+                    "Es un territorio homogéneo sin diversidad climática por su posición latitudinal."
+                ],
+                correct: 1,
+                sustento: "Bolivia se localiza en la región central de América del Sur, lo que le permite articular espacios geográficos de transición entre los Andes, la Amazonía y el Chaco. Esta ubicación continental explica su diversidad climática, ecológica y cultural, así como su condición de país mediterráneo con múltiples conexiones fronterizas."
+            },
+            {
+                q: "En la organización territorial de los Estados, la división político-administrativa cumple un rol fundamental para la gestión pública. Desde el enfoque geográfico, ¿cuál es su finalidad principal?",
+                options: [
+                    "Fomentar la separación cultural de las regiones.",
+                    "Facilitar la administración estatal, la planificación territorial y la provisión de servicios públicos.",
+                    "Eliminar las fronteras naturales entre departamentos.",
+                    "Reducir la participación ciudadana en municipios."
+                ],
+                correct: 1,
+                sustento: "La división político-administrativa organiza el territorio en unidades como departamentos, provincias y municipios, con el propósito de facilitar la administración estatal, la planificación territorial y la provisión de servicios públicos."
+            },
+            {
+                q: "La configuración del relieve sudamericano es el resultado de procesos geológicos de larga duración. En este contexto, ¿qué proceso físico explica la formación de la Cordillera de los Andes?",
+                options: [
+                    "La sedimentación eólica en las costas del Pacífico.",
+                    "El enfriamiento repentino de la placa Sudamericana.",
+                    "La subducción de la placa de Nazca por debajo de la placa Sudamericana.",
+                    "La erosión constante de los ríos amazónicos sobre la corteza."
+                ],
+                correct: 2,
+                sustento: "En el margen occidental de América del Sur, la placa de Nazca, de origen oceánico y mayor densidad, converge y se introduce por debajo de la placa Sudamericana (subducción), generando compresión, plegamiento y levantamiento de los materiales continentales."
+            },
+            {
+                q: "Bolivia presenta una notable diversidad climática en un territorio relativamente reducido. ¿Cuál es el factor geográfico que incide de manera más directa en esta diversidad?",
+                options: [
+                    "La cercanía exclusiva a las corrientes marinas frías.",
+                    "La altitud y el relieve, que generan distintos pisos ecológicos.",
+                    "La longitud geográfica con respecto al meridiano de Greenwich.",
+                    "La falta de sistemas montañosos en el occidente."
+                ],
+                correct: 1,
+                sustento: "La diversidad climática de Bolivia se explica fundamentalmente por la altitud y el relieve. A medida que aumenta la altitud disminuye la temperatura, dando lugar a la formación de distintos pisos climáticos y ecológicos (fríos en zonas altas, templados en valles y cálidos en tierras bajas)."
+            },
+            {
+                q: "Los paisajes naturales están en constante transformación debido a diversos procesos geomorfológicos. ¿Cómo se define correctamente el proceso de erosión?",
+                options: [
+                    "El levantamiento de placas tectónicas por presión interna.",
+                    "El desgaste, desprendimiento y transporte de materiales de la superficie terrestre por agentes como agua o viento.",
+                    "La solidificación del magma al salir a la superficie.",
+                    "La evaporación del agua en las cuencas endorreicas."
+                ],
+                correct: 1,
+                sustento: "La erosión es un proceso geomorfológico externo mediante el cual agentes naturales como el agua, el viento, el hielo y la gravedad provocan el desgaste, desprendimiento y transporte de materiales como rocas, suelos y sedimentos."
+            },
+            {
+                q: "En el estudio del espacio geográfico, los mapas cumplen una función esencial. ¿Qué tipo de mapa se utiliza principalmente para representar elementos naturales como ríos, montañas y relieves?",
+                options: [
+                    "Mapa político-administrativo.",
+                    "Mapa demográfico de densidad.",
+                    "Mapa físico.",
+                    "Mapa de flujos migratorios."
+                ],
+                correct: 2,
+                sustento: "El mapa físico es una representación cartográfica que muestra los principales elementos naturales del territorio, como sistemas montañosos, llanuras, mesetas, ríos, lagos y otras formas del relieve."
+            },
+            {
+                q: "En la clasificación de los recursos naturales, ¿qué característica distingue a los recursos renovables?",
+                options: [
+                    "Son recursos que no se agotan nunca sin importar su uso.",
+                    "Capacidad de regenerarse naturalmente en períodos cortos bajo un aprovechamiento sostenible.",
+                    "Son únicamente los minerales extraídos del subsuelo.",
+                    "No dependen de los ciclos biológicos del ecosistema."
+                ],
+                correct: 1,
+                sustento: "Los recursos naturales renovables poseen la capacidad de regenerarse de manera natural en períodos relativamente cortos, siempre que su aprovechamiento se realice dentro de los límites de recuperación de los ecosistemas."
+            },
+            {
+                q: "Para analizar la distribución de la población en el territorio, la geografía utiliza indicadores específicos. ¿Qué expresa la densidad poblacional?",
+                options: [
+                    "La cantidad total de nacimientos anuales.",
+                    "La relación entre el número de habitantes y la superficie territorial que ocupan.",
+                    "El porcentaje de personas que migran al extranjero.",
+                    "La calidad de vida medida por ingresos económicos."
+                ],
+                correct: 1,
+                sustento: "La densidad poblacional expresa la relación entre el número de habitantes y la superficie territorial que estos ocupan, generalmente calculada en habitantes por kilómetro cuadrado."
+            },
+            {
+                q: "Desde esta clasificación económica y geográfica, ¿cuál de las siguientes actividades corresponde de manera directa al sector primario?",
+                options: [
+                    "La industria de transformación automotriz.",
+                    "El comercio minorista en ciudades.",
+                    "La agricultura, orientada a la obtención inicial de recursos de la naturaleza.",
+                    "La banca y servicios financieros."
+                ],
+                correct: 2,
+                sustento: "El sector primario comprende actividades cuya función es la extracción o aprovechamiento directo de recursos naturales. La agricultura es central porque depende directamente de factores naturales como clima y suelo."
+            },
+            {
+                q: "La deforestación es una problemática ambiental con múltiples efectos territoriales. ¿Cuál es una de sus consecuencias directas más significativas?",
+                options: [
+                    "El aumento de la fertilidad de los suelos por exposición solar.",
+                    "Pérdida de biodiversidad y aumento de la erosión del suelo.",
+                    "La estabilización de los ciclos del agua.",
+                    "El enfriamiento global localizado en selvas."
+                ],
+                correct: 1,
+                sustento: "La deforestación provoca desequilibrios ecológicos como la pérdida de biodiversidad y expone el suelo a la erosión, pérdida de fertilidad y degradación, limitando su capacidad productiva."
+            },
+            {
+                q: "Para ubicar un punto específico en la superficie terrestre se utilizan sistemas de referencia. ¿Cuáles son las coordenadas geográficas básicas?",
+                options: [
+                    "Altitud y Profundidad.",
+                    "Latitud y Longitud.",
+                    "Norte y Sur magnético.",
+                    "Ecuador y Greenwich únicamente."
+                ],
+                correct: 1,
+                sustento: "La latitud (distancia al Ecuador) y la longitud (distancia al meridiano de Greenwich) constituyen las coordenadas fundamentales para localizar con precisión cualquier punto sobre la superficie terrestre."
+            },
+            {
+                q: "En la dinámica fluvial, ciertas formas del relieve se originan por acumulación de sedimentos. ¿Cómo se denomina la formación que se produce en la desembocadura de un río?",
+                options: [
+                    "Cordillera.",
+                    "Cañón profundo.",
+                    "Delta.",
+                    "Glaciar de montaña."
+                ],
+                correct: 2,
+                sustento: "El delta es una forma de relieve fluvial que se origina en la desembocadura cuando la velocidad de la corriente disminuye y provoca la deposición progresiva de sedimentos transportados."
+            },
+            {
+                q: "Los desplazamientos poblacionales pueden clasificarse según su alcance territorial. ¿Qué se entiende por migración interna?",
+                options: [
+                    "El cruce de fronteras internacionales hacia otros continentes.",
+                    "El desplazamiento de personas dentro de las fronteras de un mismo país.",
+                    "La llegada de turistas extranjeros por periodos cortos.",
+                    "El movimiento exclusivo entre países vecinos."
+                ],
+                correct: 1,
+                sustento: "La migración interna es el desplazamiento de personas dentro de las fronteras de un mismo país, generalmente motivado por factores económicos, sociales o ambientales."
+            },
+            {
+                q: "Algunos recursos naturales tienen un rol clave en la economía y el desarrollo. ¿Cuál de los siguientes es considerado un recurso energético estratégico?",
+                options: [
+                    "La madera de bosques vírgenes.",
+                    "El gas natural.",
+                    "La piedra caliza para construcción.",
+                    "El caucho natural."
+                ],
+                correct: 1,
+                sustento: "El gas natural es estratégico por su papel en la generación de energía, abastecimiento industrial y generación de ingresos fiscales, influyendo en la organización del territorio."
+            },
+            {
+                q: "Desde la geografía contemporánea, ¿cómo se define de manera más precisa el concepto de espacio geográfico?",
+                options: [
+                    "Como un simple escenario natural donde no interviene el hombre.",
+                    "Como una construcción social y dinámica, producto de la interacción entre elementos naturales y actividades humanas.",
+                    "Como una superficie estática definida solo por coordenadas.",
+                    "Como un vacío físico que solo existe en los mapas."
+                ],
+                correct: 1,
+                sustento: "El espacio geográfico se concibe como una construcción social y dinámica, producto de la interacción permanente entre los elementos naturales y las actividades humanas, reflejando procesos históricos y relaciones de poder."
+            },
+            {
+                q: "A lo largo de la historia, los ríos han desempeñado un papel central en la organización del territorio. ¿Cuál es una de sus principales funciones?",
+                options: [
+                    "Actuar como barreras infranqueables que impiden el comercio.",
+                    "Proporcionar agua dulce, suelos fértiles y funcionar como vías de comunicación.",
+                    "Generar únicamente zonas de desierto a su alrededor.",
+                    "Evitar el crecimiento de asentamientos humanos por peligro de inundación."
+                ],
+                correct: 1,
+                sustento: "Los ríos proporcionan recursos esenciales como agua dulce y suelos fértiles, además de funcionar históricamente como vías naturales de comunicación y transporte."
+            },
+            {
+                q: "La desertificación es un problema ambiental de alcance global. ¿En qué consiste este proceso?",
+                options: [
+                    "En la conversión de desiertos en zonas agrícolas fértiles.",
+                    "Pérdida progresiva de la capacidad productiva del suelo en zonas áridas y semiáridas por factores climáticos y acción humana.",
+                    "El aumento de las lluvias en zonas secas.",
+                    "La migración de animales hacia los polos."
+                ],
+                correct: 1,
+                sustento: "La desertificación es la degradación ambiental del suelo en zonas áridas y semiáridas, asociada a prácticas como deforestación y sobrepastoreo que debilitan la estructura del suelo."
+            },
+            {
+                q: "El relieve influye de manera directa en la organización del espacio geográfico porque:",
+                options: [
+                    "No tiene ninguna relación con el clima ni la producción.",
+                    "Condiciona el clima, la accesibilidad, la distribución de la población y las actividades económicas.",
+                    "Es un factor que el ser humano ha eliminado totalmente.",
+                    "Solo importa en los mapas físicos antiguos."
+                ],
+                correct: 1,
+                sustento: "El relieve condiciona la temperatura, precipitaciones, accesibilidad y fertilidad de los suelos, orientando las formas de organización y ocupación del espacio por las sociedades."
+            },
+            {
+                q: "Desde la geografía física, ¿cuál es el criterio principal que se utiliza para establecer las zonas climáticas de la Tierra a escala global?",
+                options: [
+                    "La longitud geográfica con respecto al Este.",
+                    "La latitud, ya que determina el ángulo de incidencia de los rayos solares.",
+                    "El número de habitantes por región.",
+                    "La cantidad de ríos que desembocan en el mar."
+                ],
+                correct: 1,
+                sustento: "Las zonas climáticas se establecen a partir de la latitud, que determina el ángulo con el que los rayos solares inciden sobre la superficie terrestre, generando zonas cálidas, templadas y frías."
+            },
+            {
+                q: "Considerando los movimientos terrestres y sus consecuencias, ¿cuál de los siguientes fenómenos es resultado directo del movimiento de rotación de la Tierra?",
+                options: [
+                    "Las estaciones del año.",
+                    "La alternancia del día y la noche.",
+                    "El ciclo lunar mensual.",
+                    "El movimiento de los cometas."
+                ],
+                correct: 1,
+                sustento: "El movimiento de rotación consiste en el giro sobre su propio eje (cada 24 horas), lo que provoca la alternancia del día y la noche."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 30 * 60; // 30 mins en segundos
+        let timerInterval;
+
+        const quizContainer = document.getElementById('quiz-container');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackBox = document.getElementById('feedback-box');
+        const feedbackStatus = document.getElementById('feedback-status');
+        const feedbackText = document.getElementById('feedback-text');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const currentQNum = document.getElementById('current-q-num');
+        const progressPercent = document.getElementById('progress-percent');
+        const timerDisplay = document.getElementById('timer');
+        const resultScreen = document.getElementById('result-screen');
+
+        function initQuiz() {
+            showQuestion();
+            startTimer();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            questionText.innerText = q.q;
+            optionsContainer.innerHTML = '';
+            feedbackBox.classList.add('hidden');
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full p-4 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium shadow-sm hover:shadow-md";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Update progress
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            currentQNum.innerText = currentQuestion + 1;
+            progressPercent.innerText = `${Math.round(progress)}%`;
+        }
+
+        function checkAnswer(selectedIdx) {
+            const q = questions[currentQuestion];
+            const buttons = optionsContainer.querySelectorAll('button');
+            
+            // Disable all buttons
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedIdx === q.correct) {
+                buttons[selectedIdx].classList.add('correct');
+                feedbackStatus.innerText = "¡CORRECTO!";
+                feedbackStatus.className = "text-emerald-600 font-bold mb-1";
+                feedbackBox.classList.add('bg-emerald-50', 'border-emerald-200');
+                score++;
+            } else {
+                buttons[selectedIdx].classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+                feedbackStatus.innerText = "INCORRECTO";
+                feedbackStatus.className = "text-red-600 font-bold mb-1";
+                feedbackBox.classList.add('bg-red-50', 'border-red-200');
+            }
+
+            feedbackText.innerText = "Sustento: " + q.sustento;
+            feedbackBox.classList.remove('hidden');
+        }
+
+        nextBtn.onclick = () => {
+            feedbackBox.className = "mt-6 p-4 rounded-lg border hidden"; // Reset classes
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                finishQuiz();
+            }
+        };
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            quizContainer.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+            
+            const percentage = (score / questions.length) * 100;
+            document.getElementById('final-score').innerText = `${score}/${questions.length}`;
+            document.getElementById('final-percentage').innerText = `${percentage}% de aciertos`;
+
+            const badge = document.getElementById('performance-badge');
+            const msg = document.getElementById('performance-msg');
+
+            if (percentage >= 80) {
+                badge.innerText = "DESEMPEÑO ALTO";
+                badge.classList.add('bg-emerald-500');
+                msg.innerText = "¡Excelente dominio! Tu nivel académico es sobresaliente. Sigue manteniendo ese nivel de excelencia.";
+            } else if (percentage >= 51) {
+                badge.innerText = "DESEMPEÑO MEDIO";
+                badge.classList.add('bg-amber-500');
+                msg.innerText = "Buen trabajo, posees conocimientos sólidos, pero hay detalles técnicos que puedes reforzar para alcanzar la excelencia.";
+            } else {
+                badge.innerText = "DESEMPEÑO BAJO";
+                badge.classList.add('bg-rose-500');
+                msg.innerText = "Es necesario profundizar en la lectura comprensiva del repositorio. La constancia es la clave para mejorar estos resultados.";
+            }
+        }
+
+        initQuiz();
+    </script>
+</body>
+</html>
